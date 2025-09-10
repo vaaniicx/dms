@@ -15,6 +15,63 @@
         <maven.compiler.source>22</maven.compiler.source>
         <maven.compiler.target>22</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <openapi-generator.version>7.15.0</openapi-generator.version>
+        <jackson-databind-nullable.version>0.2.7</jackson-databind-nullable.version>
+        <jakarta.validation-api.version>3.1.1</jakarta.validation-api.version>
     </properties>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>openapi-generator</artifactId>
+            <version>${openapi-generator.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>${jackson-databind-nullable.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>${jakarta.validation-api.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <apiNameSuffix>Dms</apiNameSuffix>
+                            <inputSpec>${project.basedir}/src/main/resources/dms-openapi.yml</inputSpec>
+                            <output>${project.build.directory}/generated-sources/openapi</output>
+                            <generatorName>spring</generatorName>
+                            <apiPackage>at.fhtw.dms.openapi.api</apiPackage>
+                            <modelPackage>at.fhtw.dms.openapi.model</modelPackage>
+                            <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <interfaceOnly>true</interfaceOnly>
+                                <developerOrganization>FHTW</developerOrganization>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

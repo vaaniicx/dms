@@ -1,0 +1,19 @@
+openapi: "3.0.0"
+info:
+  title: Document Management System API
+  description: API for the Document Management System (DMS)
+  version: 0.0.1
+
+paths:
+  /api/v1/status:
+    get:
+      summary: API Health Status
+      operationId: getStatus
+      responses:
+        "200":
+          description: OK
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: Document Management System API is alive.
