@@ -7,7 +7,7 @@ info:
 paths:
   /api/v1/status:
     get:
-      summary: API Health Status
+      summary: API Health Status.
       operationId: getStatus
       responses:
         "200":
@@ -17,3 +17,25 @@ paths:
               schema:
                 type: string
                 example: Document Management System API is alive.
+
+  /api/v1/documents:
+    post:
+      summary: Upload a document.
+      operationId: uploadDocument
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
