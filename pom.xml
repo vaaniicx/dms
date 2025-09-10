@@ -8,6 +8,7 @@
     <artifactId>dms</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+
     <modules>
         <module>dms-rest</module>
         <module>dms-openapi</module>
