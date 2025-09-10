@@ -2,4 +2,4 @@
 
 ## Project Architecture
 
-![Diagram](https://www.plantuml.com/plantuml/png/SoWkIImgAStDuKhEpot8pqlDAr5G2YueoinBLmXo3GvHS0pmZCdBoKzEpCd8BowniZ2mC5HII2nMI2p8v4f9B4bCIYnELL0A0Cgb5wK61_h4v6aKv1ULA9YQ61jfWbMc975n0LKhwEhQ0TaALWfUBaxE2leANW6EN0wfUIb0om40)
+![Diagram](https://www.plantuml.com/plantuml/png/SoWkIImgAStDuKhEpot8pqlDAr5Giaco2oueoinBLmXo3GvHS0pmjD5Fiel9YydBoKzEpCd8BowniZ2mC5HII2nMI2p8v4f9B4bCIYnE1MiD04gd5wK61_fWwZ8rCJO2wqf9uk82wbJGrRK3iXMi5BnSd9mLz1My0Xov75BpKe0k0W00)
