@@ -1,0 +1,5 @@
+# Document Management System
+
+## Project Architecture
+
+![Diagram](https://www.plantuml.com/plantuml/png/SoWkIImgAStDuKhEpot8pqlDAr5G2YueoinBLmXo3GvHS0pmZCdBoKzEpCd8BowniZ2mC5HII2nMI2p8v4f9B4bCIYnELL0A0Cgb5wK61_h4v6aKv1ULA9YQ61jfWbMc975n0LKhwEhQ0TaALWfUBaxE2leANW6EN0wfUIb0om40)
