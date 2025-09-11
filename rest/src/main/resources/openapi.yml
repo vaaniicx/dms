@@ -3,11 +3,8 @@ info:
   title: Document Management System API
   version: 0.0.1
 
-servers:
-  - url: /api/v1
-
 paths:
-  /status:
+  /api/v1/status:
     get:
       tags: [Status]
       summary: API Health Status
@@ -21,7 +18,7 @@ paths:
                 type: string
                 example: "Document Management System API is alive."
 
-  /documents:
+  /api/v1/documents:
     post:
       tags: [Document]
       summary: Upload a document
