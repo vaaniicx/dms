@@ -1,0 +1,19 @@
+meta {
+  name: Upload PDF
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:8080/documents
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  file: @file(/Users/alex/GitHub/dms/docs/sprints.pdf)
+}
+
+settings {
+  encodeUrl: true
+}
