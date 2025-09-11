@@ -30,6 +30,7 @@ docker compose up -d
     - `docker` Infrastructure
     - `docs` Requirements & Documentation
     - `rest` REST API
+    - `tests` Integration tests
 
 
 ## Project Architecture
