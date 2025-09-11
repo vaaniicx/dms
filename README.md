@@ -21,6 +21,9 @@ docker compose build
 docker compose up -d
 ```
 
+4. Access
+- [Adminer](http://localhost:8081)
+
 ## Project Structure
 
 - `dms`
@@ -31,4 +34,4 @@ docker compose up -d
 
 ## Project Architecture
 
-![Diagram](https://www.plantuml.com/plantuml/png/SoWkIImgAStDuKhEpot8pqlDAr5Giaco2oueoinBLmXo3GvHS0pmjD5Fiel9YydBoKzEpCd8BowniZ2mC5HII2nMI2p8v4f9B4bCIYnE1MiD04gd5wK61_fWwZ8rCJO2wqf9uk82wbJGrRK3iXMi5BnSd9mLz1My0Xov75BpKe0k0W00)
+![Diagram](https:////www.plantuml.com/plantuml/png/RP2zJiCm58LtFyLH9XYgLln8LLHL3Iq35KCW89OkTdm9LflhoBvCgE-EKneGQZsUS_pfqrr4qK4-svtQqRj0F89hFWJM1Qh5ULQAlILaArzlAM3fsyv7GYMwtcRuKWhuDmWKfS-HNjsFcLYGpSoyweBZ1i_trGkAyc4sDlCDRxZ_a4ydqqa67Q4xfu3z2TQQ0MgrQACZ7PYbZz84gfuU1vmr-UtDzTK1PirPbhQjOmhdBOkV4g-_WiVvd-Cn6DX96QCHh46EzUfkYJ7MPQ6GafGFwrGcIroyaKdiIxLN2sAR3lyD)
