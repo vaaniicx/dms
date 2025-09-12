@@ -118,15 +118,11 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>
-                                ${project.basedir}/src/main/resources/openapi.yml
-                            </inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/dms-openapi.yml</inputSpec>
                             <generatorName>spring</generatorName>
                             <apiPackage>com.openapi.gen.springboot.api</apiPackage>
                             <modelPackage>com.openapi.gen.springboot.dto</modelPackage>
-                            <supportingFilesToGenerate>
-                                ApiUtil.java
-                            </supportingFilesToGenerate>
+                            <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
                             <configOptions>
                                 <delegatePattern>true</delegatePattern>
                                 <serializableModel>true</serializableModel>
