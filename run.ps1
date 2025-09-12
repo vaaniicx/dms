@@ -4,7 +4,6 @@ Set-Location docker
 
 Copy-Item ../.env.example .env -Force
 
-# Check if any containers are running
 $running = docker compose ps --status=running | Select-String "Up"
 
 if ($running) {
