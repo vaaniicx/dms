@@ -1,7 +1,7 @@
 services:
   rest:
     build:
-      context: ../rest
+      context: rest
     container_name: rest
     environment:
       MAX_FILE_SIZE: 64MB
