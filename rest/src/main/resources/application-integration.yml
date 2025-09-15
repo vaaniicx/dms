@@ -1,0 +1,23 @@
+spring:
+  # DATASOURCE
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.postgresql.Driver
+
+# JPA / HIBERNATE
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      platform: h2
+
+  servlet:
+    multipart:
+      # UPLOAD LIMITS
+      max-file-size: ${MAX_FILE_SIZE:32MB}
+      max-request-size: ${MAX_REQUEST_SIZE:32MB}
