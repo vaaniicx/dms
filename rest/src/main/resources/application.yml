@@ -1,0 +1,15 @@
+spring:
+  servlet:
+    multipart:
+      # UPLOAD LIMITS
+      max-file-size: ${MAX_FILE_SIZE:32MB}
+      max-request-size: ${MAX_REQUEST_SIZE:256MB}
+
+  # JPA / Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  sql:
+    init:
+      platform: postgresql
