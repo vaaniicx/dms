@@ -35,7 +35,7 @@ docker compose up -d
 
 ## Project Architecture
 ### Spring REST API
-- JDK: `temurin-22`.
+- JDK: `temurin-22`
 - SpringBoot 3.5.5
 - Swagger Annotations (OpenAPI) 2.2.12
 
