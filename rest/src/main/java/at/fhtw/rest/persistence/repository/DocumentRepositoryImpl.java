@@ -10,20 +10,20 @@ import java.util.Optional;
 @Repository
 @AllArgsConstructor
 public class DocumentRepositoryImpl implements DocumentRepository {
-    private final JpaDocumentRepository jpaDocumentRepository;
+    private final JpaDocumentRepository repository;
 
     @Override
     public DocumentEntity save(DocumentEntity document) {
-        return jpaDocumentRepository.save(document);
+        return repository.save(document);
     }
 
     @Override
     public List<DocumentEntity> findAll() {
-        return jpaDocumentRepository.findAll();
+        return repository.findAll();
     }
 
     @Override
     public Optional<DocumentEntity> findById(Long id) {
-        return jpaDocumentRepository.findById(id);
+        return repository.findById(id);
     }
 }
