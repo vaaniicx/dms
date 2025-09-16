@@ -1,7 +1,7 @@
 package at.fhtw.rest.mapper;
 
 import at.fhtw.rest.persistence.entity.DocumentEntity;
-import com.openapi.gen.springboot.dto.Document;
+import com.openapi.gen.springboot.dto.DocumentDto;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface DocumentMapper {
 
-    Document toDocument(DocumentEntity entity);
+    DocumentDto toDocument(DocumentEntity entity);
 
-    List<Document> toDocumentList(List<DocumentEntity> entities);
+    List<DocumentDto> toDocumentList(List<DocumentEntity> entities);
 }

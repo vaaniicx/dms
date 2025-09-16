@@ -4,7 +4,7 @@ import at.fhtw.rest.mapper.DocumentMapper;
 import at.fhtw.rest.persistence.entity.DocumentEntity;
 import at.fhtw.rest.service.DocumentService;
 import com.openapi.gen.springboot.api.DocumentApi;
-import com.openapi.gen.springboot.dto.Document;
+import com.openapi.gen.springboot.dto.DocumentDto;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +20,7 @@ public class DocumentController implements DocumentApi {
     private final DocumentMapper documentMapper;
 
     @Override
-    public ResponseEntity<Document> uploadDocument(MultipartFile file) {
+    public ResponseEntity<DocumentDto> uploadDocument(MultipartFile file) {
 
         DocumentEntity document = new DocumentEntity();
         document.setTitle(file.getOriginalFilename());
@@ -32,12 +32,12 @@ public class DocumentController implements DocumentApi {
     }
 
     @Override
-    public ResponseEntity<List<Document>> getDocuments() {
+    public ResponseEntity<List<DocumentDto>> getDocuments() {
         return ResponseEntity.ok(documentMapper.toDocumentList(this.documentService.findAll()));
     }
 
     @Override
-    public ResponseEntity<Document> getDocumentById(Long id) {
+    public ResponseEntity<DocumentDto> getDocumentById(Long id) {
         return this.documentService.findById(id)
                 .map(documentMapper::toDocument)
                 .map(ResponseEntity::ok)
