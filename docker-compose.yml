@@ -14,7 +14,7 @@ services:
       - "8080:8080"
 
   db:
-    image: postgres:latest
+    image: postgres:15
     container_name: db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -24,7 +24,7 @@ services:
       - "5432:5432"
 
   adminer:
-    image: adminer:latest
+    image: adminer:5.4.0
     container_name: adminer
     depends_on: [ db ]
     environment:
