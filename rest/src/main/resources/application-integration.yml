@@ -6,7 +6,7 @@ spring:
     password:
     driver-class-name: org.postgresql.Driver
 
-# JPA / HIBERNATE
+  # JPA / HIBERNATE
   jpa:
     hibernate:
       ddl-auto: update
