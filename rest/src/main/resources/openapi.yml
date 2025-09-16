@@ -34,7 +34,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Document'
+                  $ref: '#/components/schemas/DocumentDto'
 
     post:
       tags: [Document]
@@ -57,7 +57,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Document'
+                $ref: '#/components/schemas/DocumentDto'
         "400": { description: Bad Request }
 
   /api/v1/documents/{id}:
@@ -78,7 +78,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Document'
+                $ref: '#/components/schemas/DocumentDto'
         "404": { description: Not Found }
 
 components:
