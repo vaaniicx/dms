@@ -22,7 +22,7 @@ docker compose up -d
 ```
 
 4. Access
-- [Adminer](http://localhost:8081)
+- [Adminer](http://localhost:9090)
 
 ## Project Structure
 

@@ -83,7 +83,7 @@ paths:
 
 components:
   schemas:
-    Document:
+    DocumentDto:
       type: object
       required: [id, title]
       properties:
