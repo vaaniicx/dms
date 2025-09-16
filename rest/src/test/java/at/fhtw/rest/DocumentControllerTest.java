@@ -6,7 +6,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class DocumentControllerIT extends IntegrationTest {
+class DocumentControllerTest extends IntegrationTest {
 
     @Test
     void uploadDocument_shouldReturnOk() throws Exception {
