@@ -21,3 +21,9 @@ spring:
       # UPLOAD LIMITS
       max-file-size: ${MAX_FILE_SIZE:32MB}
       max-request-size: ${MAX_REQUEST_SIZE:32MB}
+
+logging:
+  level:
+    at.fhtw.rest: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE #sql parameter (local)
