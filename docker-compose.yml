@@ -30,4 +30,4 @@ services:
     environment:
       ADMINER_DEFAULT_SERVER: db
     ports:
-      - "8081:8080"
+      - "9090:8080"

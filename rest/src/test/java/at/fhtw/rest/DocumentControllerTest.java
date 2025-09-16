@@ -19,14 +19,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class DocumentControllerTest extends IntegrationTest {
 
     @Autowired
-    private DocumentService documentService;
+    private DocumentService service;
 
     @Autowired
-    private JpaDocumentRepository jpaDocumentRepository;
+    private JpaDocumentRepository repository;
 
     @BeforeEach
     void setUp() {
-        jpaDocumentRepository.deleteAll();
+        repository.deleteAll();
     }
 
     @Test
@@ -65,8 +65,8 @@ class DocumentControllerTest extends IntegrationTest {
     private DocumentEntity persistDocument(String title) {
         DocumentEntity documentEntity = new DocumentEntity();
         documentEntity.setTitle(title);
-        DocumentEntity saved = this.documentService.save(documentEntity);
-        this.jpaDocumentRepository.flush();
+        DocumentEntity saved = this.service.save(documentEntity);
+        this.repository.flush();
         return saved;
     }
 }
