@@ -1,6 +1,7 @@
 package at.fhtw.rest;
 
 import at.fhtw.rest.persistence.entity.DocumentEntity;
+import at.fhtw.rest.persistence.repository.DocumentRepository;
 import at.fhtw.rest.persistence.repository.JpaDocumentRepository;
 import at.fhtw.rest.service.DocumentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +23,7 @@ class DocumentControllerTest extends IntegrationTest {
     private DocumentService service;
 
     @Autowired
-    private JpaDocumentRepository repository;
+    private DocumentRepository repository;
 
     @BeforeEach
     void setUp() {
@@ -65,8 +66,6 @@ class DocumentControllerTest extends IntegrationTest {
     private DocumentEntity persistDocument(String title) {
         DocumentEntity documentEntity = new DocumentEntity();
         documentEntity.setTitle(title);
-        DocumentEntity saved = this.service.save(documentEntity);
-        this.repository.flush();
-        return saved;
+        return this.service.save(documentEntity);
     }
 }

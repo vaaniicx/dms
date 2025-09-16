@@ -26,4 +26,9 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     public Optional<DocumentEntity> findById(Long id) {
         return repository.findById(id);
     }
+
+    @Override
+    public void deleteAll() {
+        repository.deleteAll();
+    }
 }

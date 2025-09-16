@@ -11,4 +11,6 @@ public interface DocumentRepository {
     List<DocumentEntity> findAll();
 
     Optional<DocumentEntity> findById(Long id);
+
+    void deleteAll();
 }
