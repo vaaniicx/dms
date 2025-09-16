@@ -34,5 +34,9 @@ docker compose up -d
 
 
 ## Project Architecture
+### Spring REST API
+- JDK: `temurin-22`.
+- SpringBoot 3.5.5
+- Swagger Annotations (OpenAPI) 2.2.12
 
 ![Diagram](https://www.plantuml.com/plantuml/png/RP5DQm8n48RlyojUShVLLa4M4Uq7AFImxGez9vkf3Qw9JKPwAFtltOqhRS7RpZmpppjB5abqbEE-eORV118GtVPTO5taMbpmH3vOXde8zOuZxiF-41AZ4btl5Bw8WDD0v2J5T3WTAkY4hcef0DJTYcSlK3CphmxH-IrU7giDbkLwTctcYe3lNv4rnMHyUvCrrlGIgqKRdJWxof1a6xbwVi9eSi6WxTvvZjqrewpf6nSFMlPiSZN-fyf_C1ZCkniA74wHwQCXd7KNQRkhQmaHQjcucdFyCN6aFwclR70NmsVRpjoSledQmMmzTr10hTQbehxEBATdjjfiIbgmj-tx_G00)
