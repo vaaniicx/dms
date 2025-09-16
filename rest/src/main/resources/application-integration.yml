@@ -6,7 +6,7 @@ spring:
     password:
     driver-class-name: org.h2.Driver
 
-# JPA / HIBERNATE
+  # JPA / HIBERNATE
   jpa:
     hibernate:
       ddl-auto: update
