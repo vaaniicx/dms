@@ -2,7 +2,6 @@ package at.fhtw.rest;
 
 import at.fhtw.rest.persistence.entity.DocumentEntity;
 import at.fhtw.rest.persistence.repository.DocumentRepository;
-import at.fhtw.rest.persistence.repository.JpaDocumentRepository;
 import at.fhtw.rest.service.DocumentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
