@@ -1,4 +1,4 @@
-package at.fhtw.rest.filter;
+package at.fhtw.rest.logging;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
