@@ -2,26 +2,25 @@
 
 ## Quick Start
 
-1. Create the environment file.
-
-```sh
-cp .env.example docker/.env
+```ps1
+.\run.ps1 # arg
 ```
 
-2. Build services.
-
 ```sh
-cd docker
-docker compose build
+./run.sh # arg
 ```
 
-3. Run the stack.
+### Run arguments
+Both files support the following arguments:
 
 ```sh
-docker compose up -d
+# default (no argument) → same as "start"
+start  # build & compose up
+stop   # compose down all running containers
+dev    # build & compose up all non-local images (PG, NGINX, ...)
 ```
 
-4. Access
+2.Access
 - [Adminer](http://localhost:9090)
 
 ## Project Structure
