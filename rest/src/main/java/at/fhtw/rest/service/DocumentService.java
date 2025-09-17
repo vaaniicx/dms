@@ -15,20 +15,15 @@ import java.util.Optional;
 public class DocumentService {
     private final DocumentRepository documentRepository;
 
-    public DocumentEntity save(DocumentEntity documentEntity) {
-        log.debug("Service.save(title='{}')", documentEntity.getTitle());
-        var saved = documentRepository.save(documentEntity);
-        log.info("Saved document id={}", saved.getId());
-        return saved;
+    public DocumentEntity save(DocumentEntity document) {
+        return documentRepository.save(document);
     }
 
     public List<DocumentEntity> findAll() {
-        log.debug("Service.findAll()");
         return documentRepository.findAll();
     }
 
     public Optional<DocumentEntity> findById(Long id) {
-        log.debug("Service.findById({})", id);
         return documentRepository.findById(id);
     }
 }
