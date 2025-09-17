@@ -34,8 +34,7 @@ class DocumentControllerTest extends IntegrationTest {
     void uploadDocument_shouldReturnCreated() throws Exception {
         this.mockMvc.perform(multipart("/api/v1/documents")
                         .file(mockMultipartFile()))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title").value("test.txt"));
+                .andExpect(status().isCreated());
     }
 
     @Test

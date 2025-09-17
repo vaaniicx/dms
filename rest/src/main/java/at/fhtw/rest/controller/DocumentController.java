@@ -20,49 +20,27 @@ import java.util.List;
 @RequestMapping
 @AllArgsConstructor
 public class DocumentController implements DocumentApi {
-    private final DocumentService documentService;
-    private final DocumentMapper documentMapper;
+    private final DocumentService service;
+    private final DocumentMapper mapper;
 
     @Override
     public ResponseEntity<DocumentDto> uploadDocument(MultipartFile file) {
-        String name = file != null ? file.getOriginalFilename() : null;
-        long size = file != null ? file.getSize() : -1;
-        log.info("POST /documents (upload) name='{}', size={}", name, size);
-
-        if (file == null || file.isEmpty()) {
-            log.warn("Upload rejected: file is null/empty");
-            return ResponseEntity.badRequest().build();
-        }
-
         DocumentEntity document = new DocumentEntity();
-        document.setTitle(name);
+        document.setTitle(file.getOriginalFilename());
+        service.save(document);
 
-        DocumentEntity savedDocument = this.documentService.save(document);
-        log.info("Document created id={}, title='{}'", savedDocument.getId(), savedDocument.getTitle());
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(documentMapper.toDocument(savedDocument));
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @Override
     public ResponseEntity<List<DocumentDto>> getDocuments() {
-        log.info("GET /documents");
-        var entities = this.documentService.findAll();
-        log.debug("Returning {} documents", entities.size());
-        return ResponseEntity.ok(documentMapper.toDocumentList(entities));
+        return ResponseEntity.ok(mapper.toDocumentList(service.findAll()));
     }
 
     @Override
     public ResponseEntity<DocumentDto> getDocumentById(Long id) {
-        log.info("GET /documents/{}", id);
-        return this.documentService.findById(id)
-                .map(entity -> {
-                    log.debug("Found document id={}, title='{}'", entity.getId(), entity.getTitle());
-                    return ResponseEntity.ok(documentMapper.toDocument(entity));
-                })
-                .orElseGet(() -> {
-                    log.warn("Document {} not found", id);
-                    return ResponseEntity.notFound().build();
-                });
-    }
+        return this.service.findById(id)
+                .map(mapper::toDocument)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());    }
 }
