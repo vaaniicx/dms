@@ -1,16 +1,16 @@
-# Setup Project
-## Setup Database
-### Prerequisites
-- Docker installed
+# Spring REST API
 
-### Run PostgreSQL with Docker
-Run the following command to create and start a PostgreSQL container with a preconfigured dms database:
-```bash
-docker run --name postgres-dms -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=dms -p 5432:5432 -d postgres:15
+## Quick Start
+
+```sh
+cd ..
+./run.sh dev 
+cd -
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-### Verify Database
-To check that the database is running:
-```bash
-docker exec -it postgres-dms psql -U postgres -c "\l"
-```
+## Dependencies
+- JDK: `temurin-22`
+- SpringBoot 3.5.5
+- Swagger Annotations (OpenAPI) 2.2.12
+
