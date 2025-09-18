@@ -11,7 +11,18 @@ public class RequestLoggingFilterConfig {
     @Bean
     public CommonsRequestLoggingFilter logFilter() {
         CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter() {
-            @Override protected void afterRequest(@NonNull HttpServletRequest request, @NonNull String message) {}
+            @Override
+            protected boolean shouldLog(@NonNull HttpServletRequest request) {
+                return true;
+            }
+
+            @Override
+            protected void beforeRequest(@NonNull HttpServletRequest request, @NonNull String message) {
+                logger.info(message);
+            }
+
+            @Override
+            protected void afterRequest(@NonNull HttpServletRequest request, @NonNull String message) {}
         };
 
         filter.setIncludeQueryString(true);
