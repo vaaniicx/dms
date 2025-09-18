@@ -21,6 +21,7 @@
     <properties>
         <java.version>22</java.version>
         <mapstruct.version>1.6.2</mapstruct.version>
+        <logbook.version>3.12.3</logbook.version>
     </properties>
 
     <dependencies>
@@ -60,6 +61,12 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.zalando</groupId>
+            <artifactId>logbook-spring-boot-starter</artifactId>
+            <version>${logbook.version}</version>
         </dependency>
 
         <!-- openapi generator -->

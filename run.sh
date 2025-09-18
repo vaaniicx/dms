@@ -14,4 +14,5 @@ if [ "$ACTION" == "dev" ]; then
     docker compose up db adminer -d
     exit 0
 fi
+
 docker compose up -d

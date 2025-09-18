@@ -24,7 +24,7 @@ paths:
   /api/v1/documents:
     get:
       tags: [Document]
-      summary: List documents
+      summary: Get all documents
       operationId: getDocuments
       responses:
         "200":
@@ -54,10 +54,12 @@ paths:
       responses:
         "201":
           description: Document created
-          content:
-            application/json:
+          headers:
+            Location:
+              description: URI of the document
               schema:
-                $ref: '#/components/schemas/DocumentDto'
+                type: string
+                format: uri
         "400": { description: Bad Request }
 
   /api/v1/documents/{id}:
@@ -90,5 +92,5 @@ components:
         id:
           type: integer
           format: int64
-        title:
+        filename:
           type: string

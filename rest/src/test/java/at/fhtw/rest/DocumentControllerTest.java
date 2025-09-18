@@ -44,7 +44,7 @@ class DocumentControllerTest extends IntegrationTest {
         this.mockMvc.perform(get("/api/v1/documents"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[*].title", containsInAnyOrder("first.txt", "second.txt")));
+                .andExpect(jsonPath("$[*].filename", containsInAnyOrder("first.txt", "second.txt")));
     }
 
     @Test
@@ -54,16 +54,16 @@ class DocumentControllerTest extends IntegrationTest {
         this.mockMvc.perform(get("/api/v1/documents/{id}", savedDocument.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(savedDocument.getId().intValue())))
-                .andExpect(jsonPath("$.title").value("unique.txt"));
+                .andExpect(jsonPath("$.filename").value("unique.txt"));
     }
 
     private MockMultipartFile mockMultipartFile() {
         return new MockMultipartFile("file", "test.txt", "text/plain", "hello world!".getBytes());
     }
 
-    private DocumentEntity persistDocument(String title) {
+    private DocumentEntity persistDocument(String filename) {
         DocumentEntity documentEntity = new DocumentEntity();
-        documentEntity.setTitle(title);
+        documentEntity.setFilename(filename);
         return this.service.save(documentEntity);
     }
 }

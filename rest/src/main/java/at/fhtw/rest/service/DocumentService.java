@@ -13,17 +13,17 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class DocumentService {
-    private final DocumentRepository documentRepository;
+    private final DocumentRepository repository;
 
     public DocumentEntity save(DocumentEntity document) {
-        return documentRepository.save(document);
+        return repository.save(document);
     }
 
     public List<DocumentEntity> findAll() {
-        return documentRepository.findAll();
+        return repository.findAll();
     }
 
     public Optional<DocumentEntity> findById(Long id) {
-        return documentRepository.findById(id);
+        return repository.findById(id);
     }
 }

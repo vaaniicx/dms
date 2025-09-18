@@ -7,12 +7,13 @@ import com.openapi.gen.springboot.api.DocumentApi;
 import com.openapi.gen.springboot.dto.DocumentDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @Slf4j
@@ -24,12 +25,22 @@ public class DocumentController implements DocumentApi {
     private final DocumentMapper mapper;
 
     @Override
-    public ResponseEntity<DocumentDto> uploadDocument(MultipartFile file) {
-        DocumentEntity document = new DocumentEntity();
-        document.setTitle(file.getOriginalFilename());
-        service.save(document);
+    public ResponseEntity<Void> uploadDocument(MultipartFile file) {
+        DocumentEntity entity = DocumentEntity.builder()
+                .filename(file.getOriginalFilename())
+                .build();
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        DocumentEntity saved = service.save(entity);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(saved.getId())
+                .toUri();
+
+        return ResponseEntity
+                .created(location)
+                .build();
     }
 
     @Override
@@ -42,5 +53,6 @@ public class DocumentController implements DocumentApi {
         return this.service.findById(id)
                 .map(mapper::toDocument)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());    }
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
