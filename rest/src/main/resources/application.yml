@@ -13,8 +13,13 @@ spring:
       platform: postgresql
 logging:
   level:
-    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
---- # Development profile (uses Postgres)
+    at.fhtw.rest: INFO
+    org.springframework.web: INFO
+    org.zalando.logbook: TRACE
+logbook:
+  format.style: http
+  write.max-body-size: 10000
+--- # Development profile
 spring:
   config:
     activate:
@@ -27,7 +32,7 @@ spring:
   jpa:
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect
---- # Integration profile (uses H2)
+--- # CI/CD Integration profile (uses H2)
 spring:
   config:
     activate:
@@ -43,9 +48,3 @@ spring:
   sql:
     init:
       platform: h2
-
-logging:
-  level:
-    at.fhtw.rest: INFO
-    org.springframework.web: INFO
-    org.hibernate.SQL: OFF
