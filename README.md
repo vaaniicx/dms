@@ -4,19 +4,15 @@ Group A
 
 ## Quick Start
 
-```ps1
-.\run.ps1 # arg
-```
-
 ```sh
-./run.sh # arg
+./run.sh args... #  or  .\run.ps1 args... 
 ```
 
-### Run arguments
+### Arguments
 Both files support the following arguments:
 
 ```sh
-# default (no argument) → same as "start"
+       # default (no argument) → same as "start"
 start  # build & compose up
 stop   # compose down all running containers
 dev    # build & compose up all non-local images (PG, NGINX, ...)
