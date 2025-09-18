@@ -13,7 +13,6 @@ public class StatusController implements StatusApi {
 
     @Override
     public ResponseEntity<String> getStatus() {
-        log.debug("GET /status");
         return ResponseEntity.ok("Alive.");
     }
 }
