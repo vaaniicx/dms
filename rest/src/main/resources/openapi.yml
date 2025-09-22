@@ -16,10 +16,9 @@ paths:
         "200":
           description: OK
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                example: "Alive."
+                $ref: '#/components/schemas/StatusDto'
 
   /api/v1/documents:
     get:
@@ -85,6 +84,13 @@ paths:
 
 components:
   schemas:
+    StatusDto:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "Alive."
+
     DocumentDto:
       type: object
       required: [id, title]
