@@ -31,24 +31,24 @@ function DocumentUpload() {
     return <>
         <div style={{ display: 'flex', flexDirection: 'column', width: '66%' }}>
             <div style={{ marginBottom: '48px' }}>
-                <Title>Dokumente hochladen</Title>
+                <Title>Upload Document</Title>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
                 <Steps
                     items={[
                         {
-                            title: 'Dokumente hochladen',
+                            title: 'Upload',
                             status: 'finish',
                             icon: <FileAddOutlined />,
                         },
                         {
-                            title: 'OCR & Indexierung',
+                            title: 'OCR & Indexing',
                             status: 'wait',
                             icon: <FileSyncOutlined />,
                         },
                         {
-                            title: 'Upload abgeschlossen',
+                            title: 'Finish',
                             status: 'wait',
                             icon: <SmileOutlined />,
                         },
@@ -69,7 +69,7 @@ function DocumentUpload() {
                 </Dragger>
 
                 <div style={{ marginLeft: 'auto' }}>
-                    <Button type="primary">Dokumente hochladen</Button>
+                    <Button type="primary">Upload</Button>
                 </div>
             </div>
         </div>
