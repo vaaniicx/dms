@@ -1,49 +1,64 @@
-import { FileOutlined } from '@ant-design/icons';
+import { FileOutlined, DashboardOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 import type { BreadcrumbItemType } from 'antd/es/breadcrumb/Breadcrumb';
 import type { ItemType } from 'antd/es/menu/interface';
 import DocumentUpload from './pages/DocumentUpload';
-import { Route, Routes, useNavigate } from 'react-router';
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router';
 import DocumentDashboard from './pages/DocumentDashboard';
 import DocumentSearch from './pages/DocumentSearch';
 
 const { Header, Content, Footer, Sider } = Layout;
 
-const breadCrumbs: BreadcrumbItemType[] = [
-  {
-    title: 'Start'
-  },
-  {
-    title: 'Dokumente'
-  },
-  {
-    title: 'Upload'
-  }
-]
+const breadCrumbs: Record<string, string> = {
+  'dashboard': 'Dashboard',
+  'document': 'Document',
+  'document/upload': 'Upload Document',
+  'document/search': 'Search Document',
+}
 
 function AppLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const path: string[] = location.pathname.split('/').filter(i => i);
 
+  const extraBreadcrumbItems = path.map((_, index) => {
+    const url = `${path.slice(0, index + 1).join('/')}`;
+    const label = breadCrumbs[url] || url;
+
+    return {
+      title: label
+    };
+  });
+
+  const breadcrumbItems: BreadcrumbItemType[] = [
+    { title: <Link to="/">Home</Link> },
+    ...extraBreadcrumbItems,
+  ];
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   const menuItems: MenuProps['items'] = [
     {
+      key: 'dashboardMenu',
+      icon: <DashboardOutlined />,
+      label: 'Dashboard',
+      onClick: () => navigate('dashboard')
+    },
+    {
       key: 'documentMenu',
       icon: <FileOutlined />,
-      label: 'Dokumente',
-      onTitleClick: () => navigate(''),
+      label: 'Document',
       children: [
         {
-          key: 'documentSubMenu1',
-          label: 'Dokumente hochladen',
+          key: 'documentSubMenu2',
+          label: 'Upload Document',
           onClick: () => navigate('document/upload')
         },
         {
-          key: 'documentSubMenu2',
-          label: 'Dokumente suchen',
+          key: 'documentSubMenu3',
+          label: 'Search Document',
           onClick: () => navigate('document/search')
         }
       ]
@@ -63,7 +78,7 @@ function AppLayout() {
       }}>
         <Breadcrumb
           style={{ margin: '16px 0' }}
-          items={breadCrumbs}
+          items={breadcrumbItems}
         />
         <Layout
           style={{
@@ -75,8 +90,8 @@ function AppLayout() {
           <Sider width={216} style={{ background: colorBgContainer }}>
             <Menu
               mode="inline"
-              defaultSelectedKeys={['documentMenu']}
-              defaultOpenKeys={['documentMenu']}
+              defaultSelectedKeys={['dashboardMenu']}
+              defaultOpenKeys={['dashboardMenu']}
               style={{ height: '100%', width: '100%' }}
               items={menuItems}
             />
@@ -88,6 +103,7 @@ function AppLayout() {
           }}>
             <Routes>
               <Route index element={<DocumentDashboard />} />
+              <Route path='dashboard' element={<DocumentDashboard />} />
               <Route path='document/upload' element={<DocumentUpload />} />
               <Route path='document/search' element={<DocumentSearch />} />
             </Routes>
