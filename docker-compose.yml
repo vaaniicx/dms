@@ -30,3 +30,11 @@ services:
       ADMINER_DEFAULT_SERVER: db
     ports:
       - "9090:8080"
+
+  web:
+    build:
+      context: web
+    container_name: web
+    depends_on: [ rest ]
+    ports:
+      - "80:80"
