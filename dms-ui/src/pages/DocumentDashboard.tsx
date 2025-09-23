@@ -155,7 +155,7 @@ function DocumentDashboard() {
 
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '24px' }}>
                 <Title level={2}>All Documents</Title>
-                <Table<DataType> columns={columns} dataSource={data} />
+                <Table<DataType> columns={columns} dataSource={data} size="small" pagination={{ pageSize: 5 }} />
             </div>
 
             <Modal
