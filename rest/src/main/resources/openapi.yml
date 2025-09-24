@@ -60,6 +60,7 @@ paths:
                 type: string
                 format: uri
         "400": { description: Bad Request }
+        "415": { description: Unsupported Media Type }
 
   /api/v1/documents/{id}:
     get:
@@ -93,10 +94,33 @@ components:
 
     DocumentDto:
       type: object
-      required: [id, title]
       properties:
         id:
           type: integer
           format: int64
-        filename:
+        fileType:
           type: string
+        fileName:
+          type: string
+        fileSize:
+          type: integer
+          format: int64
+        docPageCount:
+          type: integer
+          format: int64
+        docTitle:
+          type: string
+        docAuthor:
+          type: string
+        docCreatedAt:
+          type: string
+          format: date-time
+        docUpdatedAt:
+          type: string
+          format: date-time
+        insertedAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

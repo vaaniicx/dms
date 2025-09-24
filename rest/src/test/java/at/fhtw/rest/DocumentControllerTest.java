@@ -2,24 +2,22 @@ package at.fhtw.rest;
 
 import at.fhtw.rest.persistence.entity.DocumentEntity;
 import at.fhtw.rest.persistence.repository.DocumentRepository;
-import at.fhtw.rest.service.DocumentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import java.nio.charset.StandardCharsets;
+
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class DocumentControllerTest extends IntegrationTest {
-
-    @Autowired
-    private DocumentService service;
 
     @Autowired
     private DocumentRepository repository;
@@ -31,9 +29,35 @@ class DocumentControllerTest extends IntegrationTest {
 
     @Test
     void uploadDocument_shouldReturnCreated() throws Exception {
-        this.mockMvc.perform(multipart("/api/v1/documents")
-                        .file(mockMultipartFile()))
+
+        MockMultipartFile pdf = new MockMultipartFile(
+                "file",
+                "test.pdf",
+                "application/pdf",
+                "%PDF-1.4\n".getBytes(StandardCharsets.US_ASCII)
+        );
+
+        this.mockMvc.perform(multipart("/api/v1/documents").file(pdf))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void uploadDocument_shouldReturnBadRequest_whenNoFileProvided() throws Exception {
+        this.mockMvc.perform(multipart("/api/v1/documents"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void uploadDocument_shouldReturnUnsupportedMediaType_whenNonPdfProvided() throws Exception {
+        MockMultipartFile txt = new MockMultipartFile(
+                "file",
+                "note.txt",
+                "text/plain",
+                "hello world!".getBytes(StandardCharsets.UTF_8)
+        );
+
+        this.mockMvc.perform(multipart("/api/v1/documents").file(txt))
+                .andExpect(status().isUnsupportedMediaType());
     }
 
     @Test
@@ -44,7 +68,7 @@ class DocumentControllerTest extends IntegrationTest {
         this.mockMvc.perform(get("/api/v1/documents"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[*].filename", containsInAnyOrder("first.txt", "second.txt")));
+                .andExpect(jsonPath("$[*].fileName", containsInAnyOrder("first.txt", "second.txt")));
     }
 
     @Test
@@ -54,16 +78,15 @@ class DocumentControllerTest extends IntegrationTest {
         this.mockMvc.perform(get("/api/v1/documents/{id}", savedDocument.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(savedDocument.getId().intValue())))
-                .andExpect(jsonPath("$.filename").value("unique.txt"));
-    }
-
-    private MockMultipartFile mockMultipartFile() {
-        return new MockMultipartFile("file", "test.txt", "text/plain", "hello world!".getBytes());
+                .andExpect(jsonPath("$.fileName").value("unique.txt"));
     }
 
     private DocumentEntity persistDocument(String filename) {
-        DocumentEntity documentEntity = new DocumentEntity();
-        documentEntity.setFilename(filename);
-        return this.service.save(documentEntity);
+        DocumentEntity e = DocumentEntity.builder()
+                .fileType("application/pdf")
+                .fileName(filename)
+                .fileSize(42L)
+                .build();
+        return repository.save(e);
     }
 }
