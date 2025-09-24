@@ -1,6 +1,5 @@
 package at.fhtw.rest.controller;
 
-import at.fhtw.rest.mapper.DocumentMapper;
 import at.fhtw.rest.persistence.entity.DocumentEntity;
 import at.fhtw.rest.service.DocumentService;
 import com.openapi.gen.springboot.api.DocumentApi;
@@ -22,15 +21,10 @@ import java.util.List;
 @AllArgsConstructor
 public class DocumentController implements DocumentApi {
     private final DocumentService service;
-    private final DocumentMapper mapper;
 
     @Override
     public ResponseEntity<Void> uploadDocument(MultipartFile file) {
-        DocumentEntity entity = DocumentEntity.builder()
-                .filename(file.getOriginalFilename())
-                .build();
-
-        DocumentEntity saved = service.save(entity);
+        DocumentEntity saved = service.save(file);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -38,20 +32,17 @@ public class DocumentController implements DocumentApi {
                 .buildAndExpand(saved.getId())
                 .toUri();
 
-        return ResponseEntity
-                .created(location)
-                .build();
+        return ResponseEntity.created(location).build();
     }
 
     @Override
     public ResponseEntity<List<DocumentDto>> getDocuments() {
-        return ResponseEntity.ok(mapper.toDocumentList(service.findAll()));
+        return ResponseEntity.ok(service.findAll());
     }
 
     @Override
     public ResponseEntity<DocumentDto> getDocumentById(Long id) {
-        return this.service.findById(id)
-                .map(mapper::toDocument)
+        return service.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

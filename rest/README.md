@@ -15,4 +15,6 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 - Swagger Annotations (OpenAPI) 2.2.12
 - mapstruct 1.6.2
 - Logbook 3.12.3
+- Tika 3.2.3
+- PDFBox 3.0.5
 
