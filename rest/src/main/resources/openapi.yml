@@ -44,12 +44,8 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
-              required: [file]
-              properties:
-                file:
-                  type: string
-                  format: binary
+              $ref: '#/components/schemas/MultipartFile'
+
       responses:
         "201":
           description: Document created
@@ -92,20 +88,30 @@ components:
           type: string
           example: "Alive."
 
+    MultipartFile:
+      type: object
+      required: [file]
+      properties:
+        file:
+          type: string
+          format: binary
+
     DocumentDto:
       type: object
       properties:
         id:
           type: integer
           format: int64
-        fileType:
-          type: string
         fileName:
           type: string
         fileSize:
           type: number
           format: double
         fileSizeUnit:
+          type: string
+        fileType:
+          type: string
+        fileExtension:
           type: string
         docPageCount:
           type: integer

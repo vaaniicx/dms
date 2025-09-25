@@ -10,12 +10,13 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = FileSizeFormatter.class)
+@Mapper(componentModel = "spring", uses = DocumentFormatter.class)
 public interface DocumentMapper {
     @Mapping(source = "fileSize", target = "fileSize", qualifiedByName = "formatFileSize")
     @Mapping(source = "fileSize", target = "fileSizeUnit", qualifiedByName = "formatFileUnit")
-
+    @Mapping(source = "fileType", target = "fileExtension", qualifiedByName = "formatFileExtension")
     DocumentDto toDocument(DocumentEntity entity);
+
     List<DocumentDto> toDocumentList(List<DocumentEntity> entities);
 
     default OffsetDateTime map(Instant instant) {

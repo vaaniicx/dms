@@ -2,11 +2,16 @@ package at.fhtw.rest.mapper;
 
 import org.mapstruct.Named;
 
-public class FileSizeFormatter {
+public class DocumentFormatter {
 
     private static final double BYTES_IN_KIB = 1024;
     private static final double BYTES_IN_MIB = 1024 * 1024;
     private static final double BYTES_IN_GIB = 1024 * 1024 * 1024;
+
+    @Named("formatFileExtension")
+    public static String formatFileExtension(String  fileType) {
+        return fileType.split("[+/.]")[1];
+    }
 
     @Named("formatFileSize")
     public static double formatFileSize(long size) {
