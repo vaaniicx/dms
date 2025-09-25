@@ -1,32 +1,42 @@
 import { FileAddOutlined, FileSyncOutlined, InboxOutlined, SmileOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
-import { Button, message, Steps, Upload } from 'antd';
+import { Button, Steps, Upload, type UploadFile } from 'antd';
 import Title from 'antd/es/typography/Title';
+import type { RcFile } from 'antd/es/upload/interface';
+import { useState } from 'react';
+import { uploadDocuments } from '../api/services/DocumentService';
 
 const { Dragger } = Upload;
 
-const props: UploadProps = {
-    name: 'file',
-    multiple: true,
-    action: 'https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload',
-    onChange(info) {
-        const { status } = info.file;
-        if (status !== 'uploading') {
-            console.log(info.file, info.fileList);
-        }
-        if (status === 'done') {
-            message.success(`${info.file.name} file uploaded successfully.`);
-        } else if (status === 'error') {
-            message.error(`${info.file.name} file upload failed.`);
-        }
-    },
-    onDrop(e) {
-        console.log('Dropped files', e.dataTransfer.files);
-    },
-};
-
 function DocumentUpload() {
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [, setUploading] = useState(false);
 
+    const props: UploadProps = {
+        multiple: true,
+        fileList,
+        beforeUpload: (file: RcFile) => {
+            setFileList((prev) => [...prev, file]);
+            return false;
+        },
+        onRemove: (file: UploadFile) => {
+            setFileList((prev) => prev.filter((f) => f.uid !== file.uid));
+        },
+    };
+
+    const handleUpload = async () => {
+        if (!fileList.length) return;
+
+        try {
+            setUploading(true);
+            await uploadDocuments(fileList as any);
+            setFileList([]);
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setUploading(false);
+        }
+    }
 
     return <>
         <div style={{ display: 'flex', flexDirection: 'column', width: '66%' }}>
@@ -69,7 +79,7 @@ function DocumentUpload() {
                 </Dragger>
 
                 <div style={{ marginLeft: 'auto' }}>
-                    <Button type="primary">Upload</Button>
+                    <Button type="primary" onClick={handleUpload}>Upload</Button>
                 </div>
             </div>
         </div>
