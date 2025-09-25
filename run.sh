@@ -15,5 +15,5 @@ if [ "$ACTION" == "dev" ]; then
     exit 0
 fi
 
-docker compose build --no-cache web
+docker compose build --no-cache ui
 docker compose up -d
