@@ -11,6 +11,7 @@ interface DataType {
     author: string;
     tags: string[];
     size: string;
+    pageCount: number;
 }
 
 function DocumentDashboard() {
@@ -88,6 +89,14 @@ function DocumentDashboard() {
             ),
         },
         {
+            title: 'Pages',
+            dataIndex: 'pageCount',
+            key: 'pageCount',
+            sorter: (a, b) => a.pageCount - b.pageCount,
+            render: (n: number) => n.toLocaleString(),
+            width: 100,
+        },
+        {
             title: 'Size',
             dataIndex: 'size',
             key: 'size',
@@ -112,6 +121,7 @@ function DocumentDashboard() {
             author: 'Alex Mustermann',
             tags: ['java', 'spring boot'],
             size: '64 MB',
+            pageCount: 120,
         },
         {
             key: '2',
@@ -120,6 +130,7 @@ function DocumentDashboard() {
             author: 'Bernd Mustermann',
             tags: ['java', 'spring boot'],
             size: '64 MB',
+            pageCount: 100,
         },
         {
             key: '3',
@@ -128,6 +139,7 @@ function DocumentDashboard() {
             author: 'Cedric Mustermann',
             tags: ['java', 'spring boot'],
             size: '64 MB',
+            pageCount: 80,
         },
     ];
 
