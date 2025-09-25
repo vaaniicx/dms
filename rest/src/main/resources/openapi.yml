@@ -103,8 +103,10 @@ components:
         fileName:
           type: string
         fileSize:
-          type: integer
-          format: int64
+          type: number
+          format: double
+        fileSizeUnit:
+          type: string
         docPageCount:
           type: integer
           format: int64
