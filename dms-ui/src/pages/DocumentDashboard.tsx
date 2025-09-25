@@ -1,147 +1,65 @@
+import { Button, Col, Divider, Modal, Row, Statistic } from 'antd';
 import Title from "antd/es/typography/Title";
-import { Button, Col, Row, Statistic, Space, Table, Tag, Divider, Modal } from 'antd';
-import type { TableProps } from 'antd';
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useState } from "react";
-
-interface DataType {
-    key: string;
-    name: string;
-    type: string;
-    author: string;
-    tags: string[];
-    size: string;
-    pageCount: number;
-}
+import { deleteDocument, getDocuments } from "../api/services/DocumentService";
+import type { DocumentResponse } from "../api/types/DocumentResponse";
+import DataTable, { type DataType } from "./components/DocumentDataTable";
 
 function DocumentDashboard() {
     const navigate = useNavigate();
+
+    const [documents, setDocuments] = useState<DocumentResponse[]>([]);
+    const [selectedDocument, setSelectedDocument] = useState<number | null>(null);
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    const showModal = () => {
+    useEffect(() => {
+        getDocuments()
+            .then((data) => setDocuments(data))
+            .catch((err) => setError(err))
+            .finally(() => setLoading(false))
+    }, []);
+
+    const showModal = (id: number) => {
+        setSelectedDocument(id);
         setOpen(true);
     }
 
-    const handleOk = () => {
+    const handleOk = async () => {
+        if (!selectedDocument) return;
+
         setConfirmLoading(true);
-        setTimeout(() => {
-            setOpen(false);
+
+        try {
+            await deleteDocument(selectedDocument);
+        } catch (err) {
+            console.log(error);
+        } finally {
             setConfirmLoading(false);
-        }, 2000);
+            setOpen(false);
+            setSelectedDocument(null);
+        }
     };
 
     const handleCancel = () => {
         setOpen(false);
+        setSelectedDocument(null);
     };
 
-    const columns: TableProps<DataType>['columns'] = [
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            defaultSortOrder: 'ascend',
-            sorter: (a, b) => a.name.localeCompare(b.name),
-            render: (text) => <a>{text}</a>,
-        },
-        {
-            title: 'Type',
-            dataIndex: 'type',
-            key: 'type',
-            onFilter: (value, record) => record.type.indexOf(value as string) === 0,
-            filters: [
-                {
-                    text: 'PDF',
-                    value: 'pdf',
-                },
-                {
-                    text: 'Text',
-                    value: 'txt',
-                },
-            ],
-        },
-        {
-            title: 'Author',
-            dataIndex: 'author',
-            key: 'author',
-            sorter: (a, b) => a.author.localeCompare(b.author),
-            render: (_, record) => (
-                <Tag color={'blue'} key={record.author}>
-                    {record.author.toUpperCase()}
-                </Tag>
-            ),
-        },
-        {
-            title: 'Tags',
-            key: 'tags',
-            dataIndex: 'tags',
-            render: (_, { tags }) => (
-                <>
-                    {tags.map((tag) => {
-                        let color = tag.length > 5 ? 'geekblue' : 'green';
-                        return (
-                            <Tag color={color} key={tag}>
-                                {tag.toUpperCase()}
-                            </Tag>
-                        );
-                    })}
-                </>
-            ),
-        },
-        {
-            title: 'Pages',
-            dataIndex: 'pageCount',
-            key: 'pageCount',
-            sorter: (a, b) => a.pageCount - b.pageCount,
-            render: (n: number) => n.toLocaleString(),
-            width: 100,
-        },
-        {
-            title: 'Size',
-            dataIndex: 'size',
-            key: 'size',
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            render: () => (
-                <Space size="middle">
-                    <a>Edit</a>
-                    <a onClick={showModal} style={{ color: 'red' }}>Delete</a>
-                </Space>
-            ),
-        },
-    ];
-
-    const data: DataType[] = [
-        {
-            key: '1',
-            name: "A - Build a Backend with Java Spring Boot 3",
-            type: 'pdf',
-            author: 'Alex Mustermann',
-            tags: ['java', 'spring boot'],
-            size: '64 MB',
-            pageCount: 120,
-        },
-        {
-            key: '2',
-            name: "B - Build a Backend with Java Spring Boot 3",
-            type: 'pdf',
-            author: 'Bernd Mustermann',
-            tags: ['java', 'spring boot'],
-            size: '64 MB',
-            pageCount: 100,
-        },
-        {
-            key: '3',
-            name: "C - Build a Backend with Java Spring Boot 3",
-            type: 'pdf',
-            author: 'Cedric Mustermann',
-            tags: ['java', 'spring boot'],
-            size: '64 MB',
-            pageCount: 80,
-        },
-    ];
+    function mapDocuments(docs: DocumentResponse[]): DataType[] {
+        return docs.map((doc) => ({
+            key: doc.id,
+            name: doc.docTitle ? doc.docTitle : doc.fileName,
+            type: doc.fileExtension,
+            author: doc.docAuthor,
+            tags: [doc.fileType],
+            size: `${doc.fileSize} ${doc.fileSizeUnit}`,
+            pageCount: doc.docPageCount,
+        }));
+    }
 
     return <>
         <div style={{ display: 'flex', flexDirection: 'column', width: '66%' }}>
@@ -152,10 +70,10 @@ function DocumentDashboard() {
             <div style={{ marginBottom: '24px' }}>
                 <Row gutter={16}>
                     <Col span={12}>
-                        <Statistic title="Authors" value={1} />
+                        <Statistic title="Authors" value={new Set(documents.map(doc => doc.docAuthor)).size} />
                     </Col>
                     <Col span={12}>
-                        <Statistic title="Total Documents" value={1} />
+                        <Statistic title="Documents" value={documents.length} />
                         <Button style={{ marginTop: 16 }} type="primary" onClick={() => navigate('/document/upload')}>
                             Upload
                         </Button>
@@ -166,8 +84,12 @@ function DocumentDashboard() {
             <Divider />
 
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: '24px' }}>
-                <Title level={2}>All Documents</Title>
-                <Table<DataType> columns={columns} dataSource={data} size="small" pagination={{ pageSize: 5 }} />
+                <Title level={2}>Documents</Title>
+                <DataTable
+                    data={mapDocuments(documents)}
+                    loading={loading}
+                    onDelete={showModal}
+                />
             </div>
 
             <Modal
