@@ -22,7 +22,7 @@ export default function DataTable({ data, loading = false, onDelete }: DataTable
             dataIndex: 'name',
             key: 'name',
             defaultSortOrder: 'ascend',
-            sorter: (a, b) => a.name.localeCompare(b.name),
+            sorter: (a, b) => a?.name.localeCompare(b?.name),
             render: (text) => <a>{text}</a>,
         },
         {
@@ -41,7 +41,7 @@ export default function DataTable({ data, loading = false, onDelete }: DataTable
             title: 'Author',
             dataIndex: 'author',
             key: 'author',
-            sorter: (a, b) => a.author.localeCompare(b.author),
+            sorter: (a, b) => a?.author.localeCompare(b?.author),
             render: (_, record) => (
                 <Tag color={'blue'} key={record.author}>
                     {record.author ? record.author.toUpperCase() : '-'}
@@ -52,7 +52,7 @@ export default function DataTable({ data, loading = false, onDelete }: DataTable
             title: 'Pages',
             dataIndex: 'pageCount',
             key: 'pageCount',
-            sorter: (a, b) => a.pageCount - b.pageCount,
+            sorter: (a, b) => a?.pageCount - b?.pageCount,
             render: (n: number) => n.toLocaleString(),
             width: 100,
         },
