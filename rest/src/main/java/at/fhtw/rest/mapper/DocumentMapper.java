@@ -4,7 +4,6 @@ import at.fhtw.rest.persistence.entity.DocumentEntity;
 import com.openapi.gen.springboot.dto.DocumentDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 
 import java.time.Instant;
 import java.time.OffsetDateTime;
@@ -15,6 +14,7 @@ import java.util.List;
 public interface DocumentMapper {
     @Mapping(source = "fileSize", target = "fileSize", qualifiedByName = "formatFileSize")
     @Mapping(source = "fileSize", target = "fileSizeUnit", qualifiedByName = "formatFileUnit")
+
     DocumentDto toDocument(DocumentEntity entity);
     List<DocumentDto> toDocumentList(List<DocumentEntity> entities);
 
