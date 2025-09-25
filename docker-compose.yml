@@ -31,10 +31,10 @@ services:
     ports:
       - "9090:8080"
 
-  web:
+  ui:
     build:
-      context: web
-    container_name: web
+      context: ui
+    container_name: ui
     depends_on: [ rest ]
     ports:
       - "80:80"
