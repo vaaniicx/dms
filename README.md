@@ -9,6 +9,7 @@ Group A
 ```
 
 ### Arguments
+
 Both files support the following arguments:
 
 ```sh
@@ -18,8 +19,9 @@ stop   # compose down all running containers
 dev    # build & compose up all non-local images (PG, NGINX, ...)
 ```
 
-2.Access
-- [Adminer](http://localhost:9090)
+### Access
+- [Adminer DB UI](http://localhost:9090)
+- [RabbitMQ UI](http://localhost:9093)
 
 ## Project Structure
 
@@ -31,9 +33,13 @@ dev    # build & compose up all non-local images (PG, NGINX, ...)
 
 
 ## Project Architecture
+
 ### Spring REST API
+
 - JDK: `temurin-22`
 - SpringBoot 3.5.5
 - Swagger Annotations (OpenAPI) 2.2.12
+- RabbitMQ 3.13
 
-![Diagram](https://www.plantuml.com/plantuml/dpng/TP1HJ_em5CNV-obEzWx_mHyY6490yS7466JovaktNcV3rfAsGnFZTzUkAvaXFjvpxkdvzQwiuyOrTSKgUdLm6aQMRmv26YgSr8enfGKXsUZYG0QtkZvgIyWSBmu9FXbGU4cHSaWM-J8x6gbAxEwoPwotzuj_-V95NS_IMOe4tCAGTGmGtF6SMsepMsrTQIXxUi1esYMca__ZDY3oYuwrgAKYW-bmqctFqtdQRlDWiOlCZdZXC9fZtp5Pnvqia3Uo4e7CRrpa7akfFZ0QZg_YLqAHyhgl-GbfWsH3fu1Bfzzlt1ZzRib4CmyZOmn-n62mxCle3QqNFuJGwBLumxuGqBqHNip14BDdvOknZdOVYHfV-WVj6RM9C57f0uP3h4Y9fgw-0G00)
+
+![Diagram](https://www.plantuml.com/plantuml/dpng/TL9DRy8m5BldLrYzmrfAnuSGWdqSaCO4TDou96tMHT24fIcRDEs_ho4jOggu83txEROVdHM6QbFc1tBWxmP6GOlimo0LcYT6A4c8L2c7zwIIFTTuLFbH5HoneSdUmmy14Wj9BWsy2Pl6HoraXirp_8RvQZ6vOzET70_zeGyFj83cXQb4AJMKqOAVDIjLc4ppUFs28AeLKJ_idGKfQtdCqrn8hX5r-_Nso1_vvstgADBIR3XD388HjdMcghWH2LWf3gbBPZTQkjTCo6y4tTwWgUACfCNRBfGnOPPhXDqWT8BvSht2EBeVX3kvNS163PrV_cbZLgPAL_Vb9rUNd_w_-g3LLy5rGp8t4YkjHdGwqsiOLuFbceEq2MiF-skd-cznhMu1xZoMSAuC1Ctx5-INaBhHjabTsc0t6btgb4sk1hdEweuzupAjljG_)

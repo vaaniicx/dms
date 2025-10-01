@@ -13,6 +13,9 @@ spring:
     url: jdbc:postgresql://localhost:5432/dms
     username: postgres
     password: postgres
+  rabbitmq:
+    username: guest
+    password: guest
 logging:
   level:
     org.springframework.web: INFO

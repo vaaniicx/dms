@@ -5,13 +5,20 @@ cp .env.example .env
 
 ACTION="${1:-start}"
 
-docker compose down -v --remove-orphans
 if [ "$ACTION" == "stop" ]; then
+    docker compose down -v --remove-orphans
     exit 0
 fi
 
 if [ "$ACTION" == "dev" ]; then
-    docker compose up db adminer -d
+    docker compose up db rmq adminer -d
+    exit 0
+fi
+
+if [ "$ACTION" == "rest" ]; then
+    cd rest
+    mvn spring-boot:run
+    cd -
     exit 0
 fi
 

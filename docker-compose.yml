@@ -9,6 +9,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
       - "8080:8080"
 
@@ -38,3 +40,13 @@ services:
     depends_on: [ rest ]
     ports:
       - "80:80"
+
+  rmq:
+    image: rabbitmq:3.13-management
+    container_name: rmq
+    ports:
+      - "5672:5672"  # AMQP
+      - "9093:15672" # UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
