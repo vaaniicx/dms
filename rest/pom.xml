@@ -143,6 +143,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.6.0</version>
                 <executions>
                     <execution>
                         <goals>
@@ -159,7 +160,6 @@
                                 ApiUtil.java
                             </supportingFilesToGenerate>
                             <configOptions>
-                                <delegatePattern>true</delegatePattern>
                                 <serializableModel>true</serializableModel>
                                 <useTags>true</useTags>
                             </configOptions>
@@ -167,7 +167,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 </project>
