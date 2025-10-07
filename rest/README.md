@@ -3,9 +3,6 @@
 ## Quick Start
 
 ```sh
-cd ..
-./run.sh dev 
-cd -
 mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
