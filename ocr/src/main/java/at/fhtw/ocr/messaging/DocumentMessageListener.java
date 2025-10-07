@@ -2,6 +2,7 @@ package at.fhtw.ocr.messaging;
 
 import at.fhtw.ocr.messaging.dto.DocumentMessage;
 import at.fhtw.ocr.messaging.dto.DocumentReply;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -13,12 +14,9 @@ import static at.fhtw.ocr.config.RabbitMQConfig.DOCUMENT_PROCESSED_ROUTING_KEY;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class DocumentMessageListener {
     private final RabbitTemplate template;
-
-    public DocumentMessageListener(RabbitTemplate template) {
-        this.template = template;
-    }
 
     @RabbitListener(queues = DOCUMENT_UPLOAD_QUEUE)
     public void handle(DocumentMessage message) {
