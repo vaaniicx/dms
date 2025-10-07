@@ -1,8 +1,11 @@
 package at.fhtw.rest.service;
 
+import at.fhtw.rest.exception.DocumentMessagingException;
 import at.fhtw.rest.mapper.DocumentMapper;
 import at.fhtw.rest.persistence.entity.DocumentEntity;
 import at.fhtw.rest.persistence.repository.DocumentRepository;
+import at.fhtw.rest.messaging.DocumentMessagePublisher;
+import at.fhtw.rest.messaging.dto.DocumentMessage;
 import com.openapi.gen.springboot.dto.DocumentDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,7 @@ import java.util.Optional;
 public class DocumentService {
     private final DocumentRepository repository;
     private final DocumentMapper mapper;
+    private final DocumentMessagePublisher messagePublisher;
     private static final Tika TIKA = new Tika();
 
     public DocumentEntity save(MultipartFile file) {
@@ -71,8 +75,21 @@ public class DocumentService {
         );
 
         DocumentEntity document = builder.build();
+        DocumentEntity saved = repository.save(document);
 
-        return repository.save(document);
+        try {
+            byte[] content = file.getBytes();
+            DocumentMessage message = DocumentMessage.from(saved.getId(), content);
+            messagePublisher.send(message);
+        } catch (IOException e) {
+            log.error("Failed to read file content for document {}", saved.getId(), e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not read file content");
+        } catch (DocumentMessagingException e) {
+            log.error("Failed to enqueue document {}", saved.getId(), e);
+            throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Could not forward document to OCR queue");
+        }
+
+        return saved;
     }
 
     private Optional<PdfMetadata> extractPdfMetadata(MultipartFile file) {
