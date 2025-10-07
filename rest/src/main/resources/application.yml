@@ -4,6 +4,11 @@ spring:
     multipart:
       max-file-size: 64MB
       max-request-size: 256MB
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
   jpa:
     hibernate:
       ddl-auto: update
