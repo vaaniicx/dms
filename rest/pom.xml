@@ -131,6 +131,7 @@
                             <modelPackage>com.openapi.gen.springboot.dto</modelPackage>
                             <supportingFilesToGenerate>ApiUtil.java</supportingFilesToGenerate>
                             <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
                                 <serializableModel>true</serializableModel>
                                 <useTags>true</useTags>
                             </configOptions>
