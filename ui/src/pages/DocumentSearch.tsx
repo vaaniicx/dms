@@ -80,6 +80,11 @@ function DocumentSearch() {
             name: doc.docTitle || doc.fileName || "-",
             type: doc.fileExtension || "-",
             author: doc.docAuthor || "",
+            status: doc.docStatus || "-",
+            uploadedAt: doc.insertedAt
+                ? new Date(doc.insertedAt).toLocaleString()
+                : "-",
+            sizeRaw: doc.fileSize ?? 0,
             size:
                 doc.fileSize && doc.fileSizeUnit
                     ? `${doc.fileSize} ${doc.fileSizeUnit}`

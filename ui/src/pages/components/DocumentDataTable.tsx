@@ -5,8 +5,11 @@ export interface DataType {
     name: string;
     type: string;
     author: string;
+    status: string;
+    uploadedAt: string;
     pageCount: number;
     size: string;
+    sizeRaw?: number;
 }
 
 interface DataTableProps {
@@ -45,6 +48,43 @@ export default function DataTable({
             ),
         },
         {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            sorter: (a, b) =>
+                (a?.status ?? "").localeCompare(b?.status ?? "", undefined, {
+                    sensitivity: "base",
+                }),
+            render: (status: string) => {
+                const normalized = status?.toUpperCase?.() ?? "-";
+                const colorMap: Record<string, string> = {
+                    UPLOADED: "gold",
+                    SCANNED: "green",
+                    INDEXED: "blue",
+                    FAILED: "red",
+                    SELECTED: "default",
+                };
+                const color = colorMap[normalized] || "default";
+                return (
+                    <Tag color={color} key={normalized}>
+                        {normalized || "-"}
+                    </Tag>
+                );
+            },
+        },
+        {
+            title: "Date Uploaded",
+            dataIndex: "uploadedAt",
+            key: "uploadedAt",
+            sorter: (a, b) =>
+                (a?.uploadedAt ?? "").localeCompare(
+                    b?.uploadedAt ?? "",
+                    undefined,
+                    { sensitivity: "base" },
+                ),
+            render: (value: string) => value || "-",
+        },
+        {
             title: "Author",
             dataIndex: "author",
             key: "author",
@@ -70,6 +110,7 @@ export default function DataTable({
             title: "Size",
             dataIndex: "size",
             key: "size",
+            sorter: (a, b) => (a?.sizeRaw ?? 0) - (b?.sizeRaw ?? 0),
         },
         {
             title: "Action",
