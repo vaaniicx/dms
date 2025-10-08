@@ -8,6 +8,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 import static at.fhtw.ocr.config.RabbitMQConfig.DOCUMENT_EXCHANGE;
 import static at.fhtw.ocr.config.RabbitMQConfig.DOCUMENT_UPLOAD_QUEUE;
 import static at.fhtw.ocr.config.RabbitMQConfig.DOCUMENT_PROCESSED_ROUTING_KEY;
@@ -24,6 +26,9 @@ public class DocumentMessageListener {
 
         try {
             DocumentReply reply = new DocumentReply(message.documentId(), "");
+
+            Thread.sleep(ThreadLocalRandom.current().nextInt(5, 11) * 1000L);
+
             template.convertAndSend(DOCUMENT_EXCHANGE, DOCUMENT_PROCESSED_ROUTING_KEY, reply);
         } catch (Exception ex) {
             log.error("Failed to process document #{}", message.documentId(), ex);

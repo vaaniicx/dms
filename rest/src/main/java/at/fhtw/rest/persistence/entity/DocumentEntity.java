@@ -1,5 +1,6 @@
 package at.fhtw.rest.persistence.entity;
 
+import at.fhtw.rest.persistence.model.DocumentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,6 +32,9 @@ public class DocumentEntity {
     private String docAuthor;
     private Instant docCreatedAt;
     private Instant docUpdatedAt;
+
+    @Enumerated(EnumType.STRING)
+    private DocumentStatus docStatus = DocumentStatus.UPLOADED;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
