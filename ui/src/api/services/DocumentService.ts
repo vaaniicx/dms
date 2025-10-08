@@ -2,7 +2,7 @@ import api from "../api";
 import type { DocumentResponse } from "../types/DocumentResponse";
 
 export async function getDocuments(): Promise<DocumentResponse[]> {
-    const { data } = await api.get<DocumentResponse[]>('/v1/documents');
+    const { data } = await api.get<DocumentResponse[]>("/v1/documents");
     return data;
 }
 
@@ -18,10 +18,14 @@ async function uploadDocument(file: File): Promise<DocumentResponse[]> {
     const formData = new FormData();
     formData.append("file", file);
 
-    const { data } = await api.post<DocumentResponse[]>('/v1/documents', formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
+    const { data } = await api.post<DocumentResponse[]>(
+        "/v1/documents",
+        formData,
+        {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
         },
-    });
+    );
     return data;
 }
