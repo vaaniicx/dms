@@ -66,9 +66,9 @@ services:
       retries: 20
       start_period: 10s
 
-  dbm:
+  adminer:
     image: adminer:5.4.0
-    container_name: adminer
+    container_name: dbm
     depends_on:
       rmq:
         condition: service_healthy
