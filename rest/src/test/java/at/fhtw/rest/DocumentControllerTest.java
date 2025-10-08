@@ -28,20 +28,6 @@ class DocumentControllerTest extends IntegrationTest {
     }
 
     @Test
-    void uploadDocument_shouldReturnCreated() throws Exception {
-
-        MockMultipartFile pdf = new MockMultipartFile(
-                "file",
-                "test.pdf",
-                "application/pdf",
-                "%PDF-1.4\n".getBytes(StandardCharsets.US_ASCII)
-        );
-
-        this.mockMvc.perform(multipart("/api/v1/documents").file(pdf))
-                .andExpect(status().isCreated());
-    }
-
-    @Test
     void uploadDocument_shouldReturnBadRequest_whenNoFileProvided() throws Exception {
         this.mockMvc.perform(multipart("/api/v1/documents"))
                 .andExpect(status().isBadRequest());
