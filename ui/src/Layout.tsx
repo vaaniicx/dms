@@ -3,6 +3,8 @@ import {
     DashboardOutlined,
     MoonFilled,
     SunFilled,
+    UploadOutlined,
+    SearchOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, Switch, theme } from "antd";
@@ -62,11 +64,13 @@ function AppLayout({ isDarkMode, onToggleDarkMode }: AppLayoutProps) {
             children: [
                 {
                     key: "documentSubMenu2",
+                    icon: <UploadOutlined />,
                     label: "Upload",
                     onClick: () => navigate("document/upload"),
                 },
                 {
                     key: "documentSubMenu3",
+                    icon: <SearchOutlined />,
                     label: "Search",
                     onClick: () => navigate("document/search"),
                 },
