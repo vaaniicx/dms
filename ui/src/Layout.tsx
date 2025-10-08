@@ -3,26 +3,28 @@ import {
     DashboardOutlined,
     MoonFilled,
     SunFilled,
+    InfoCircleOutlined,
     UploadOutlined,
     SearchOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Breadcrumb, Layout, Menu, Switch, theme } from "antd";
 import type { BreadcrumbItemType } from "antd/es/breadcrumb/Breadcrumb";
-import type { ItemType } from "antd/es/menu/interface";
 import { Link, Route, Routes, useLocation, useNavigate } from "react-router";
 import DocumentDashboard from "./pages/DocumentDashboard";
 import DocumentUpload from "./pages/DocumentUpload";
 import DocumentSearch from "./pages/DocumentSearch";
+import About from "./pages/About";
 import type { Dispatch, SetStateAction } from "react";
 
-const { Header, Content, Footer, Sider } = Layout;
+const { Header, Content, Sider } = Layout;
 
 const breadCrumbs: Record<string, string> = {
     dashboard: "Dashboard",
     document: "Document",
     "document/upload": "Upload",
     "document/search": "Search",
+    about: "About",
 };
 
 interface AppLayoutProps {
@@ -63,20 +65,49 @@ function AppLayout({ isDarkMode, onToggleDarkMode }: AppLayoutProps) {
             label: "Document",
             children: [
                 {
-                    key: "documentSubMenu2",
-                    icon: <UploadOutlined />,
-                    label: "Upload",
-                    onClick: () => navigate("document/upload"),
-                },
-                {
-                    key: "documentSubMenu3",
-                    icon: <SearchOutlined />,
+                    key: "documentSearch",
                     label: "Search",
+                    icon: <SearchOutlined />,
                     onClick: () => navigate("document/search"),
                 },
+                {
+                    key: "documentUpload",
+                    label: "Upload",
+                    icon: <UploadOutlined />,
+                    onClick: () => navigate("document/upload"),
+                },
             ],
-        } as ItemType,
+        },
+        {
+            key: "aboutMenu",
+            icon: <InfoCircleOutlined />,
+            label: "About",
+            onClick: () => navigate("about"),
+        },
     ];
+
+    const selectedKeys: string[] = (() => {
+        if (path.length === 0 || path[0] === "dashboard") {
+            return ["dashboardMenu"];
+        }
+
+        if (path[0] === "document") {
+            if (path[1] === "upload") {
+                return ["documentUpload"];
+            }
+            if (path[1] === "search") {
+                return ["documentSearch"];
+            }
+            return ["documentMenu"];
+        }
+
+        if (path[0] === "about") {
+            return ["aboutMenu"];
+        }
+
+        return ["dashboardMenu"];
+    })();
+
     return (
         <Layout style={{ display: "flex", minHeight: "100vh", width: "100vw" }}>
             <Header
@@ -111,14 +142,15 @@ function AppLayout({ isDarkMode, onToggleDarkMode }: AppLayoutProps) {
             </Header>
             <Layout>
                 <Sider
-                    width={200}
+                    width={275}
                     style={{ background: token.colorBgContainer }}
                 >
                     <Menu
                         mode="inline"
-                        defaultSelectedKeys={["dashboardMenu"]}
-                        defaultOpenKeys={["dashboardMenu"]}
+                        defaultOpenKeys={["documentMenu"]}
+                        selectedKeys={selectedKeys}
                         style={{ height: "100%", width: "100%" }}
+                        rootClassName="app-sider-menu"
                         items={menuItems}
                     />
                 </Sider>
@@ -155,14 +187,10 @@ function AppLayout({ isDarkMode, onToggleDarkMode }: AppLayoutProps) {
                                     path="document/search"
                                     element={<DocumentSearch />}
                                 />
+                                <Route path="about" element={<About />} />
                             </Routes>
                         </Content>
                     </Layout>
-                    <Footer
-                        style={{ textAlign: "center", padding: "16px 0 0 0" }}
-                    >
-                        Created by Group A, Winter-Semester 2025
-                    </Footer>
                 </Layout>
             </Layout>
         </Layout>
