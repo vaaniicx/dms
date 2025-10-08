@@ -112,7 +112,7 @@ function AppLayout() {
       </Layout>
 
       <Footer style={{ textAlign: 'center' }}>
-        Created by Group A, Winter-Semester {new Date().getFullYear()}
+        Created by Group A, Winter-Semester 2025
       </Footer>
     </Layout>
   );
