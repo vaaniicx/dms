@@ -1,12 +1,13 @@
-import { FileOutlined, DashboardOutlined } from '@ant-design/icons';
+import { FileOutlined, DashboardOutlined, MoonFilled, SunFilled } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import { Breadcrumb, Layout, Menu, Switch, theme } from 'antd';
 import type { BreadcrumbItemType } from 'antd/es/breadcrumb/Breadcrumb';
 import type { ItemType } from 'antd/es/menu/interface';
-import DocumentUpload from './pages/DocumentUpload';
 import { Link, Route, Routes, useLocation, useNavigate } from 'react-router';
 import DocumentDashboard from './pages/DocumentDashboard';
+import DocumentUpload from './pages/DocumentUpload';
 import DocumentSearch from './pages/DocumentSearch';
+import type { Dispatch, SetStateAction } from 'react';
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -17,7 +18,12 @@ const breadCrumbs: Record<string, string> = {
   'document/search': 'Search Document',
 }
 
-function AppLayout() {
+interface AppLayoutProps {
+  isDarkMode: boolean;
+  onToggleDarkMode: Dispatch<SetStateAction<boolean>>;
+}
+
+function AppLayout({ isDarkMode, onToggleDarkMode }: AppLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const path: string[] = location.pathname.split('/').filter(i => i);
@@ -35,9 +41,7 @@ function AppLayout() {
     { title: <Link to="/">Home</Link> },
     ...extraBreadcrumbItems,
   ];
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
+  const { token } = theme.useToken();
 
   const menuItems: MenuProps['items'] = [
     {
@@ -65,12 +69,27 @@ function AppLayout() {
     } as ItemType
   ];
 
+
   return (
     <Layout style={{ display: 'flex', minHeight: "100vh", width: '100vw' }}>
-      <Header style={{ alignItems: 'center' }}>
-        <div style={{ color: "white", fontWeight: "bold", marginRight: 20 }}>
-          DMS - Document Management System
+      <Header style={{
+        alignItems: 'center',
+        background: isDarkMode ? token.colorPrimaryActive : token.colorPrimary,
+        color: token.colorTextLightSolid,
+        display: 'flex',
+        justifyContent: 'space-between',
+        padding: '0 24px'
+      }}>
+        <div style={{ alignItems: 'center', display: 'flex', fontWeight: "bold", gap: 8 }}>
+          <FileOutlined /> Document Management System
         </div>
+        <Switch
+          checked={isDarkMode}
+          onChange={(checked) => onToggleDarkMode(checked)}
+          checkedChildren={<MoonFilled />}
+          unCheckedChildren={<SunFilled />}
+          aria-label="Toggle dark mode"
+        />
       </Header>
 
       <Layout style={{
@@ -83,11 +102,11 @@ function AppLayout() {
         <Layout
           style={{
             padding: '24px 0',
-            background: colorBgContainer,
-            borderRadius: borderRadiusLG
+            background: token.colorBgContainer,
+            borderRadius: token.borderRadiusLG
           }}
         >
-          <Sider width={216} style={{ background: colorBgContainer }}>
+          <Sider width={216} style={{ background: token.colorBgContainer }}>
             <Menu
               mode="inline"
               defaultSelectedKeys={['dashboardMenu']}
