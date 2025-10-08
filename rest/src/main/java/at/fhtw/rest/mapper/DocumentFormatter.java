@@ -9,8 +9,17 @@ public class DocumentFormatter {
     private static final double BYTES_IN_GIB = 1024 * 1024 * 1024;
 
     @Named("formatFileExtension")
-    public static String formatFileExtension(String  fileType) {
-        return fileType.split("[+/.]")[1];
+    public static String formatFileExtension(String fileType) {
+        if (fileType == null || fileType.isBlank()) {
+            return "";
+        }
+
+        String[] parts = fileType.split("[+/.]");
+        if (parts.length == 0) {
+            return "";
+        }
+
+        return parts[parts.length - 1];
     }
 
     @Named("formatFileSize")

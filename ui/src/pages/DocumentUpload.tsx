@@ -87,6 +87,21 @@ const getStatusMeta = (status: DocumentStatus, palette: StatusPalette) => {
     }
 };
 
+const pageStyles = {
+    container: {
+        display: "flex",
+        flexDirection: "column" as const,
+        width: "100%",
+        gap: 24,
+    },
+    section: {
+        display: "flex",
+        flexDirection: "column" as const,
+        gap: 16,
+        width: "100%",
+    },
+};
+
 function DocumentUpload() {
     const { token } = theme.useToken();
     const palette = useMemo<StatusPalette>(
@@ -245,24 +260,12 @@ function DocumentUpload() {
     const hasUploads = uploads.length > 0;
 
     return (
-        <div
-            style={{
-                display: "flex",
-                flexDirection: "column",
-            }}
-        >
-            <div style={{ marginBottom: "24px" }}>
+        <section style={pageStyles.container}>
+            <header>
                 <Title style={{ margin: 0 }}>Document Upload</Title>
-            </div>
+            </header>
 
-            <div
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "stretch",
-                    gap: "24px",
-                }}
-            >
+            <section style={pageStyles.section}>
                 <Dragger {...uploadProps} disabled={uploading}>
                     <p className="ant-upload-drag-icon">
                         <InboxOutlined />
@@ -277,7 +280,7 @@ function DocumentUpload() {
                 </Dragger>
 
                 {hasUploads && (
-                    <>
+                    <section style={pageStyles.section}>
                         <List
                             bordered
                             dataSource={uploads}
@@ -298,7 +301,7 @@ function DocumentUpload() {
                                                 display: "flex",
                                                 justifyContent: "space-between",
                                                 alignItems: "center",
-                                                gap: "12px",
+                                                gap: 12,
                                                 width: "100%",
                                             }}
                                         >
@@ -314,14 +317,14 @@ function DocumentUpload() {
                                                 style={{
                                                     display: "flex",
                                                     alignItems: "center",
-                                                    gap: "12px",
+                                                    gap: 12,
                                                 }}
                                             >
                                                 <span
                                                     style={{
                                                         display: "inline-flex",
                                                         alignItems: "center",
-                                                        gap: "6px",
+                                                        gap: 6,
                                                         color,
                                                         fontWeight: 500,
                                                     }}
@@ -353,13 +356,10 @@ function DocumentUpload() {
                                 display: "flex",
                                 justifyContent: "space-between",
                                 alignItems: "center",
-                                gap: "12px",
+                                gap: 12,
                             }}
                         >
-                            <Button
-                                onClick={clearAll}
-                                disabled={uploading}
-                            >
+                            <Button onClick={clearAll} disabled={uploading}>
                                 Clear All
                             </Button>
                             <Button
@@ -371,10 +371,10 @@ function DocumentUpload() {
                                 Upload
                             </Button>
                         </div>
-                    </>
+                    </section>
                 )}
-            </div>
-        </div>
+            </section>
+        </section>
     );
 }
 

@@ -26,8 +26,11 @@ export default function DataTable({
             dataIndex: "name",
             key: "name",
             defaultSortOrder: "ascend",
-            sorter: (a, b) => a?.name.localeCompare(b?.name),
-            render: (text) => <a>{text}</a>,
+            sorter: (a, b) =>
+                (a?.name ?? "").localeCompare(b?.name ?? "", undefined, {
+                    sensitivity: "base",
+                }),
+            render: (text: string | null | undefined) => <a>{text || "-"}</a>,
         },
         {
             title: "Type",
@@ -45,7 +48,10 @@ export default function DataTable({
             title: "Author",
             dataIndex: "author",
             key: "author",
-            sorter: (a, b) => a?.author.localeCompare(b?.author),
+            sorter: (a, b) =>
+                (a?.author ?? "").localeCompare(b?.author ?? "", undefined, {
+                    sensitivity: "base",
+                }),
             render: (_, record) => (
                 <Tag color={"blue"} key={record.author}>
                     {record.author ? record.author.toUpperCase() : "-"}
@@ -70,7 +76,6 @@ export default function DataTable({
             key: "action",
             render: (_, record) => (
                 <Space size="middle">
-                    <a>Edit</a>
                     {onDelete && (
                         <a
                             style={{ color: "red" }}
