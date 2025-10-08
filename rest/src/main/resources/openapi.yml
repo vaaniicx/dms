@@ -79,6 +79,21 @@ paths:
                 $ref: '#/components/schemas/DocumentDto'
         "404": { description: Not Found }
 
+    delete:
+      tags: [Document]
+      summary: Delete document by id
+      operationId: deleteDocument
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204": { description: Document deleted }
+        "404": { description: Not Found }
+
 components:
   schemas:
     StatusDto:

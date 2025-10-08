@@ -160,4 +160,12 @@ public class DocumentService {
     public Optional<DocumentDto> findById(Long id) {
         return repository.findById(id).map(mapper::toDocument);
     }
+
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found");
+        }
+
+        repository.deleteById(id);
+    }
 }
