@@ -6,26 +6,39 @@ export async function getDocuments(): Promise<DocumentResponse[]> {
     return data;
 }
 
+export async function getDocument(id: number): Promise<DocumentResponse> {
+    const { data } = await api.get<DocumentResponse>(`/v1/documents/${id}`);
+    return data;
+}
+
 export async function deleteDocument(id: number): Promise<void> {
     await api.delete(`/v1/documents/${id}`);
 }
 
-export async function uploadDocuments(files: File[]): Promise<void> {
-    files.forEach(async (file) => await uploadDocument(file));
-}
-
-async function uploadDocument(file: File): Promise<DocumentResponse[]> {
+export async function uploadDocument(file: File): Promise<number> {
     const formData = new FormData();
     formData.append("file", file);
 
-    const { data } = await api.post<DocumentResponse[]>(
-        "/v1/documents",
-        formData,
-        {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
+    const response = await api.post<void>("/v1/documents", formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
         },
-    );
-    return data;
+    });
+
+    const locationHeader =
+        response.headers?.location ?? response.headers?.Location;
+
+    if (!locationHeader) {
+        throw new Error("Upload succeeded but no document location was returned");
+    }
+
+    const match = locationHeader.match(/\/(\d+)(?:\/)?$/);
+
+    if (!match) {
+        throw new Error(
+            `Upload succeeded but the document id could not be parsed from ${locationHeader}`,
+        );
+    }
+
+    return Number(match[1]);
 }

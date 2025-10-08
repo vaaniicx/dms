@@ -1,113 +1,380 @@
 import {
+    CheckCircleOutlined,
+    CloseCircleOutlined,
+    CloseOutlined,
     FileAddOutlined,
     FileSyncOutlined,
     InboxOutlined,
-    SmileOutlined,
 } from "@ant-design/icons";
 import type { UploadProps } from "antd";
-import { Button, Steps, Upload, type UploadFile } from "antd";
+import { Button, List, Upload, type UploadFile, theme } from "antd";
 import Title from "antd/es/typography/Title";
 import type { RcFile } from "antd/es/upload/interface";
-import { useState } from "react";
-import { uploadDocuments } from "../api/services/DocumentService";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { getDocument, uploadDocument } from "../api/services/DocumentService";
+import type { DocumentStatus } from "../api/types/DocumentResponse";
 
 const { Dragger } = Upload;
 
-function DocumentUpload() {
-    const [fileList, setFileList] = useState<UploadFile[]>([]);
-    const [, setUploading] = useState(false);
+type UploadRow = {
+    uid: string;
+    name: string;
+    status: DocumentStatus;
+    documentId?: number;
+};
 
-    const props: UploadProps = {
+const POLL_DELAY_MS = 2000;
+const MAX_POLL_ATTEMPTS = 10;
+
+const sleep = (ms: number) =>
+    new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+
+const isProcessedStatus = (status: DocumentStatus) =>
+    status === "SCANNED" || status === "INDEXED";
+
+type StatusPalette = {
+    idle: string;
+    uploading: string;
+    success: string;
+    error: string;
+};
+
+const getStatusMeta = (status: DocumentStatus, palette: StatusPalette) => {
+    switch (status) {
+        case "FAILED":
+            return {
+                label: "Failed",
+                icon: (
+                    <CloseCircleOutlined
+                        style={{ color: palette.error, fontSize: 16 }}
+                    />
+                ),
+                color: palette.error,
+            };
+        case "SCANNED":
+            return {
+                label: "Done",
+                icon: (
+                    <CheckCircleOutlined
+                        style={{ color: palette.success, fontSize: 16 }}
+                    />
+                ),
+                color: palette.success,
+            };
+        case "UPLOADED":
+            return {
+                label: "Uploaded",
+                icon: (
+                    <FileSyncOutlined
+                        style={{ color: palette.uploading, fontSize: 16 }}
+                    />
+                ),
+                color: palette.uploading,
+            };
+        case "SELECTED":
+        default:
+            return {
+                label: "Selected",
+                icon: (
+                    <FileAddOutlined
+                        style={{ color: palette.idle, fontSize: 16 }}
+                    />
+                ),
+                color: palette.idle,
+            };
+    }
+};
+
+function DocumentUpload() {
+    const { token } = theme.useToken();
+    const palette = useMemo<StatusPalette>(
+        () => ({
+            uploading: token.colorPrimary,
+            success: token.colorSuccess,
+            error: token.colorError,
+            idle:
+                token.colorTextQuaternary ??
+                token.colorTextTertiary ??
+                token.colorTextSecondary,
+        }),
+        [token],
+    );
+
+    const [fileList, setFileList] = useState<UploadFile[]>([]);
+    const [uploads, setUploads] = useState<UploadRow[]>([]);
+    const [uploading, setUploading] = useState(false);
+    const isMounted = useRef(true);
+
+    useEffect(() => {
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
+
+    const addUploadRow = (file: UploadFile) => {
+        setUploads((prev) =>
+            prev.some((item) => item.uid === file.uid)
+                ? prev
+                : [
+                      ...prev,
+                      {
+                          uid: file.uid,
+                          name: file.name,
+                          status: "SELECTED",
+                      },
+                  ],
+        );
+    };
+
+    const updateUploadRow = (uid: string, updates: Partial<UploadRow>) => {
+        if (!isMounted.current) return;
+
+        setUploads((prev) =>
+            prev.map((item) =>
+                item.uid === uid ? { ...item, ...updates } : item,
+            ),
+        );
+    };
+
+    const removeUploadRow = (uid: string) => {
+        setUploads((prev) => prev.filter((item) => item.uid !== uid));
+        setFileList((prev) => prev.filter((file) => file.uid !== uid));
+    };
+
+    const clearAll = () => {
+        setUploads([]);
+        setFileList([]);
+    };
+
+    const pollDocumentStatus = async (
+        documentId: number,
+        uid: string,
+    ): Promise<void> => {
+        for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt += 1) {
+            try {
+                const document = await getDocument(documentId);
+                const nextStatus: DocumentStatus = isProcessedStatus(
+                    document.docStatus,
+                )
+                    ? "SCANNED"
+                    : "UPLOADED";
+
+                updateUploadRow(uid, { status: nextStatus });
+
+                if (nextStatus === "SCANNED") {
+                    return;
+                }
+            } catch (error) {
+                if (attempt === MAX_POLL_ATTEMPTS - 1) {
+                    throw error;
+                }
+            }
+
+            if (attempt < MAX_POLL_ATTEMPTS - 1) {
+                await sleep(POLL_DELAY_MS);
+            }
+        }
+
+        throw new Error("Timed out while waiting for document processing");
+    };
+
+    const uploadProps: UploadProps = {
         multiple: true,
         fileList,
+        showUploadList: false,
         beforeUpload: (file: RcFile) => {
-            setFileList((prev) => [...prev, file]);
+            const uploadFile = file as UploadFile;
+            setFileList((prev) => [...prev, uploadFile]);
+            addUploadRow(uploadFile);
             return false;
         },
         onRemove: (file: UploadFile) => {
-            setFileList((prev) => prev.filter((f) => f.uid !== file.uid));
+            if (uploading) {
+                return false;
+            }
+
+            removeUploadRow(file.uid);
+            return true;
         },
     };
 
     const handleUpload = async () => {
-        if (!fileList.length) return;
+        if (!fileList.length || uploading) {
+            return;
+        }
+
+        setUploading(true);
+        const filesToUpload = [...fileList];
+
+        const processFile = async (file: UploadFile) => {
+            try {
+                const withOrigin = file as UploadFile & {
+                    originFileObj?: RcFile;
+                };
+                const source =
+                    withOrigin.originFileObj ?? (file as unknown as RcFile);
+
+                const documentId = await uploadDocument(
+                    source as unknown as File,
+                );
+
+                updateUploadRow(file.uid, {
+                    status: "UPLOADED",
+                    documentId,
+                });
+
+                await pollDocumentStatus(documentId, file.uid);
+            } catch (error) {
+                console.error(error);
+                updateUploadRow(file.uid, { status: "FAILED" });
+            }
+        };
 
         try {
-            setUploading(true);
-            await uploadDocuments(fileList as any);
-            setFileList([]);
-        } catch (err) {
-            console.log(err);
+            await Promise.allSettled(filesToUpload.map(processFile));
         } finally {
-            setUploading(false);
+            if (isMounted.current) {
+                setFileList([]);
+                setUploading(false);
+            }
         }
     };
 
+    const hasUploads = uploads.length > 0;
+
     return (
-        <>
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+            }}
+        >
+            <div style={{ marginBottom: "24px" }}>
+                <Title style={{ margin: 0 }}>Document Upload</Title>
+            </div>
+
             <div
                 style={{
                     display: "flex",
                     flexDirection: "column",
-                    width: "66%",
+                    alignItems: "stretch",
+                    gap: "24px",
                 }}
             >
-                <div style={{ marginBottom: "48px" }}>
-                    <Title>Upload Document</Title>
-                </div>
+                <Dragger {...uploadProps} disabled={uploading}>
+                    <p className="ant-upload-drag-icon">
+                        <InboxOutlined />
+                    </p>
+                    <p className="ant-upload-text">
+                        Click or drag file to this area to upload
+                    </p>
+                    <p className="ant-upload-hint">
+                        Support for a single or bulk upload. Strictly prohibited
+                        from uploading company data or other banned files.
+                    </p>
+                </Dragger>
 
-                <div style={{ marginBottom: "24px" }}>
-                    <Steps
-                        items={[
-                            {
-                                title: "Upload",
-                                status: "finish",
-                                icon: <FileAddOutlined />,
-                            },
-                            {
-                                title: "OCR & Indexing",
-                                status: "wait",
-                                icon: <FileSyncOutlined />,
-                            },
-                            {
-                                title: "Finish",
-                                status: "wait",
-                                icon: <SmileOutlined />,
-                            },
-                        ]}
-                    />
-                </div>
+                {hasUploads && (
+                    <>
+                        <List
+                            bordered
+                            dataSource={uploads}
+                            renderItem={(item) => {
+                                const { label, icon, color } = getStatusMeta(
+                                    item.status,
+                                    palette,
+                                );
+                                const removeDisabled =
+                                    uploading &&
+                                    item.status !== "FAILED" &&
+                                    item.status !== "SCANNED";
 
-                <div
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "stretch",
-                        gap: "24px",
-                    }}
-                >
-                    <Dragger {...props}>
-                        <p className="ant-upload-drag-icon">
-                            <InboxOutlined />
-                        </p>
-                        <p className="ant-upload-text">
-                            Click or drag file to this area to upload
-                        </p>
-                        <p className="ant-upload-hint">
-                            Support for a single or bulk upload. Strictly
-                            prohibited from uploading company data or other
-                            banned files.
-                        </p>
-                    </Dragger>
+                                return (
+                                    <List.Item key={item.uid}>
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                alignItems: "center",
+                                                gap: "12px",
+                                                width: "100%",
+                                            }}
+                                        >
+                                            <span
+                                                style={{
+                                                    fontWeight: 500,
+                                                    wordBreak: "break-word",
+                                                }}
+                                            >
+                                                {item.name}
+                                            </span>
+                                            <div
+                                                style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: "12px",
+                                                }}
+                                            >
+                                                <span
+                                                    style={{
+                                                        display: "inline-flex",
+                                                        alignItems: "center",
+                                                        gap: "6px",
+                                                        color,
+                                                        fontWeight: 500,
+                                                    }}
+                                                >
+                                                    {icon}
+                                                    <span>{label}</span>
+                                                </span>
+                                                <Button
+                                                    type="text"
+                                                    size="small"
+                                                    icon={<CloseOutlined />}
+                                                    onClick={() =>
+                                                        removeUploadRow(
+                                                            item.uid,
+                                                        )
+                                                    }
+                                                    aria-label={`Remove ${item.name}`}
+                                                    disabled={removeDisabled}
+                                                />
+                                            </div>
+                                        </div>
+                                    </List.Item>
+                                );
+                            }}
+                        />
 
-                    <div style={{ marginLeft: "auto" }}>
-                        <Button type="primary" onClick={handleUpload}>
-                            Upload
-                        </Button>
-                    </div>
-                </div>
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                gap: "12px",
+                            }}
+                        >
+                            <Button
+                                onClick={clearAll}
+                                disabled={uploading}
+                            >
+                                Clear All
+                            </Button>
+                            <Button
+                                type="primary"
+                                onClick={handleUpload}
+                                disabled={!fileList.length || uploading}
+                                loading={uploading}
+                            >
+                                Upload
+                            </Button>
+                        </div>
+                    </>
+                )}
             </div>
-        </>
+        </div>
     );
 }
 
