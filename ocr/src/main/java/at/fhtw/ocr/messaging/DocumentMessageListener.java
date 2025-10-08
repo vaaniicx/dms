@@ -27,7 +27,7 @@ public class DocumentMessageListener {
         try {
             DocumentReply reply = new DocumentReply(message.documentId(), "");
 
-            Thread.sleep(ThreadLocalRandom.current().nextInt(5, 11) * 1000L);
+            Thread.sleep(ThreadLocalRandom.current().nextInt(2, 6) * 1000L);
 
             template.convertAndSend(DOCUMENT_EXCHANGE, DOCUMENT_PROCESSED_ROUTING_KEY, reply);
         } catch (Exception ex) {
