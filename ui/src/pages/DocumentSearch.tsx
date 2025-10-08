@@ -38,7 +38,7 @@ function DocumentSearch() {
     );
     const [open, setOpen] = useState(false);
     const [confirmLoading, setConfirmLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -60,8 +60,9 @@ function DocumentSearch() {
 
         try {
             await deleteDocument(selectedDocument);
+            setDocuments((prev) => prev.filter((doc) => doc.id !== selectedDocument));
         } catch (err) {
-            console.log(error);
+            console.error(err);
         } finally {
             setConfirmLoading(false);
             setOpen(false);
