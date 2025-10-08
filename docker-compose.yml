@@ -4,7 +4,7 @@ services:
       context: rest
     container_name: rest
     depends_on:
-      rabbitmq:
+      rmq:
         condition: service_healthy
       db:
         condition: service_healthy
@@ -26,7 +26,7 @@ services:
       context: ocr
     container_name: ocr
     depends_on:
-      rabbitmq:
+      rmq:
         condition: service_healthy
     environment:
       SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
@@ -34,9 +34,9 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
 
-  rabbitmq:
+  rmq:
     image: rabbitmq:4-management
-    container_name: rabbitmq
+    container_name: rmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
@@ -66,11 +66,11 @@ services:
       retries: 20
       start_period: 10s
 
-  adminer:
+  dbm:
     image: adminer:5.4.0
     container_name: adminer
     depends_on:
-      rabbitmq:
+      rmq:
         condition: service_healthy
     environment:
       ADMINER_DEFAULT_SERVER: db
