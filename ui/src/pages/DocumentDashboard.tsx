@@ -6,6 +6,21 @@ import { deleteDocument, getDocuments } from "../api/services/DocumentService";
 import type { DocumentResponse } from "../api/types/DocumentResponse";
 import DataTable, { type DataType } from "./components/DocumentDataTable";
 
+const pageStyles = {
+    container: {
+        display: "flex",
+        flexDirection: "column" as const,
+        width: "100%",
+        gap: 24,
+    },
+    section: {
+        display: "flex",
+        flexDirection: "column" as const,
+        gap: 16,
+        width: "100%",
+    },
+};
+
 function DocumentDashboard() {
     const navigate = useNavigate();
 
@@ -54,92 +69,76 @@ function DocumentDashboard() {
     function mapDocuments(docs: DocumentResponse[]): DataType[] {
         return docs.map((doc) => ({
             key: doc.id,
-            name: doc.docTitle ? doc.docTitle : doc.fileName,
-            type: doc.fileExtension,
-            author: doc.docAuthor,
-            tags: [doc.fileType],
-            size: `${doc.fileSize} ${doc.fileSizeUnit}`,
-            pageCount: doc.docPageCount,
+            name: doc.docTitle || doc.fileName || "-",
+            type: doc.fileExtension || "-",
+            author: doc.docAuthor || "",
+            size:
+                doc.fileSize && doc.fileSizeUnit
+                    ? `${doc.fileSize} ${doc.fileSizeUnit}`
+                    : "-",
+            pageCount: doc.docPageCount ?? 0,
         }));
     }
 
     return (
-        <>
-            <div
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    width: "66%",
-                }}
+        <section style={pageStyles.container}>
+            <header>
+                <Title style={{ margin: 0 }}>Dashboard</Title>
+            </header>
+
+            <section style={pageStyles.section}>
+                <Row gutter={16}>
+                    <Col span={12}>
+                        <Statistic
+                            title="Authors"
+                            value={
+                                new Set(documents.map((doc) => doc.docAuthor)).size
+                            }
+                        />
+                    </Col>
+                    <Col span={12}>
+                        <Statistic title="Documents" value={documents.length} />
+                        <Button
+                            style={{ marginTop: 16 }}
+                            type="primary"
+                            onClick={() => navigate("/document/upload")}
+                        >
+                            Upload
+                        </Button>
+                    </Col>
+                </Row>
+            </section>
+
+            <Divider style={{ margin: 0 }} />
+
+            <section style={pageStyles.section}>
+                <Title level={2} style={{ margin: 0 }}>
+                    Documents
+                </Title>
+                <DataTable
+                    data={mapDocuments(documents)}
+                    loading={loading}
+                    onDelete={showModal}
+                />
+            </section>
+
+            <Modal
+                title="Delete Document?"
+                centered
+                open={open}
+                onOk={handleOk}
+                okType="primary"
+                okText="Delete"
+                okButtonProps={{ danger: true }}
+                confirmLoading={confirmLoading}
+                onCancel={handleCancel}
             >
-                <div style={{ marginBottom: "48px" }}>
-                    <Title>Dashboard</Title>
-                </div>
-
-                <div style={{ marginBottom: "24px" }}>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <Statistic
-                                title="Authors"
-                                value={
-                                    new Set(
-                                        documents.map((doc) => doc.docAuthor),
-                                    ).size
-                                }
-                            />
-                        </Col>
-                        <Col span={12}>
-                            <Statistic
-                                title="Documents"
-                                value={documents.length}
-                            />
-                            <Button
-                                style={{ marginTop: 16 }}
-                                type="primary"
-                                onClick={() => navigate("/document/upload")}
-                            >
-                                Upload
-                            </Button>
-                        </Col>
-                    </Row>
-                </div>
-
-                <Divider />
-
-                <div
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "stretch",
-                        gap: "24px",
-                    }}
-                >
-                    <Title level={2}>Documents</Title>
-                    <DataTable
-                        data={mapDocuments(documents)}
-                        loading={loading}
-                        onDelete={showModal}
-                    />
-                </div>
-
-                <Modal
-                    title="Delete Document?"
-                    centered
-                    open={open}
-                    onOk={handleOk}
-                    okType="primary"
-                    okText="Delete"
-                    okButtonProps={{ danger: true }}
-                    confirmLoading={confirmLoading}
-                    onCancel={handleCancel}
-                >
-                    <p>
-                        Are you sure you want to delete this document? This
-                        action cannot be undone.
-                    </p>
-                </Modal>
-            </div>
-        </>
+                <p>
+                    Are you sure you want to delete this document? This action
+                    cannot be undone.
+                </p>
+            </Modal>
+        </section>
     );
 }
 

@@ -5,6 +5,32 @@ import { deleteDocument, getDocuments } from "../api/services/DocumentService";
 import type { DocumentResponse } from "../api/types/DocumentResponse";
 import DataTable, { type DataType } from "./components/DocumentDataTable";
 
+const pageStyles = {
+    container: {
+        display: "flex",
+        flexDirection: "column" as const,
+        width: "100%",
+        gap: 24,
+    },
+    section: {
+        display: "flex",
+        flexDirection: "column" as const,
+        gap: 16,
+        width: "100%",
+    },
+    formRow: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: 16,
+        flexWrap: "wrap" as const,
+        width: "100%",
+    },
+    formItem: {
+        flex: "1 1 200px",
+        minWidth: 180,
+    },
+};
+
 function DocumentSearch() {
     const [documents, setDocuments] = useState<DocumentResponse[]>([]);
     const [selectedDocument, setSelectedDocument] = useState<number | null>(
@@ -51,116 +77,77 @@ function DocumentSearch() {
     function mapDocuments(docs: DocumentResponse[]): DataType[] {
         return docs.map((doc) => ({
             key: doc.id,
-            name: doc.docTitle ? doc.docTitle : doc.fileName,
-            type: doc.fileExtension,
-            author: doc.docAuthor,
-            tags: [doc.fileType],
-            size: `${doc.fileSize} ${doc.fileSizeUnit}`,
-            pageCount: doc.docPageCount,
+            name: doc.docTitle || doc.fileName || "-",
+            type: doc.fileExtension || "-",
+            author: doc.docAuthor || "",
+            size:
+                doc.fileSize && doc.fileSizeUnit
+                    ? `${doc.fileSize} ${doc.fileSizeUnit}`
+                    : "-",
+            pageCount: doc.docPageCount ?? 0,
         }));
     }
 
     return (
-        <>
-            <div
-                style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    width: "66%",
-                }}
-            >
-                <div style={{ marginBottom: "48px" }}>
-                    <Title>Search Document</Title>
-                </div>
+        <section style={pageStyles.container}>
+            <header>
+                <Title style={{ margin: 0 }}>Document Search</Title>
+            </header>
 
-                <div
-                    style={{
-                        marginBottom: "24px",
-                        display: "flex",
-                        flexDirection: "column",
-                    }}
-                >
-                    <div>
-                        <Form
-                            name="layout-multiple-horizontal"
-                            layout="horizontal"
-                            style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                flexWrap: "wrap",
-                            }}
-                        >
-                            <Form.Item
-                                layout="vertical"
-                                label="Name"
-                                name="vertical"
-                                rules={[{ required: true }]}
-                                style={{ width: "30%" }}
-                            >
-                                <Input />
-                            </Form.Item>
-                            <Form.Item
-                                layout="vertical"
-                                label="File Type"
-                                name="nameSearch"
-                                rules={[{ required: true }]}
-                                style={{ width: "30%" }}
-                            >
-                                <Input />
-                            </Form.Item>
-                            <Form.Item
-                                layout="vertical"
-                                label="Author"
-                                name="authorSearch"
-                                rules={[{ required: true }]}
-                                style={{ width: "30%" }}
-                            >
-                                <Input />
-                            </Form.Item>
-                        </Form>
+            <section style={pageStyles.section}>
+                <Form layout="vertical" style={{ width: "100%" }}>
+                    <div style={pageStyles.formRow}>
+                        <Form.Item label="Name" style={pageStyles.formItem}>
+                            <Input placeholder="Document name" allowClear />
+                        </Form.Item>
+                        <Form.Item label="File Type" style={pageStyles.formItem}>
+                            <Input placeholder="e.g. PDF" allowClear />
+                        </Form.Item>
+                        <Form.Item label="Author" style={pageStyles.formItem}>
+                            <Input placeholder="Author" allowClear />
+                        </Form.Item>
                     </div>
-
-                    <div style={{ marginLeft: "auto" }}>
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                        }}
+                    >
                         <Button type="primary">Search</Button>
                     </div>
-                </div>
+                </Form>
+            </section>
 
-                <Divider />
+            <Divider style={{ margin: 0 }} />
 
-                <div
-                    style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "stretch",
-                        gap: "24px",
-                    }}
-                >
-                    <Title level={2}>Documents</Title>
-                    <DataTable
-                        data={mapDocuments(documents)}
-                        loading={loading}
-                        onDelete={showModal}
-                    />
-                </div>
+            <section style={pageStyles.section}>
+                <Title level={2} style={{ margin: 0 }}>
+                    Documents
+                </Title>
+                <DataTable
+                    data={mapDocuments(documents)}
+                    loading={loading}
+                    onDelete={showModal}
+                />
+            </section>
 
-                <Modal
-                    title="Delete Document?"
-                    centered
-                    open={open}
-                    onOk={handleOk}
-                    okType="primary"
-                    okText="Delete"
-                    okButtonProps={{ danger: true }}
-                    confirmLoading={confirmLoading}
-                    onCancel={handleCancel}
-                >
-                    <p>
-                        Are you sure you want to delete this document? This
-                        action cannot be undone.
-                    </p>
-                </Modal>
-            </div>
-        </>
+            <Modal
+                title="Delete Document?"
+                centered
+                open={open}
+                onOk={handleOk}
+                okType="primary"
+                okText="Delete"
+                okButtonProps={{ danger: true }}
+                confirmLoading={confirmLoading}
+                onCancel={handleCancel}
+            >
+                <p>
+                    Are you sure you want to delete this document? This action
+                    cannot be undone.
+                </p>
+            </Modal>
+        </section>
     );
 }
 

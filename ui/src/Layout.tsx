@@ -154,7 +154,13 @@ function AppLayout({ isDarkMode, onToggleDarkMode }: AppLayoutProps) {
                         items={menuItems}
                     />
                 </Sider>
-                <Layout style={{ padding: "0 24px 24px" }}>
+                <Layout
+                    style={{
+                        padding: "0 24px 24px",
+                        maxHeight: "calc(100vh - 64px)",
+                        overflow: "auto",
+                    }}
+                >
                     <Breadcrumb
                         style={{ margin: "16px 0" }}
                         items={breadcrumbItems}
