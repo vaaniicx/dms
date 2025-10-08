@@ -14,7 +14,6 @@ import static at.fhtw.rest.config.RabbitMQConfig.DOCUMENT_UPLOAD_ROUTING_KEY;
 @Component
 @RequiredArgsConstructor
 public class DocumentMessagePublisher {
-
     private final RabbitTemplate rabbitTemplate;
 
     public void send(DocumentMessage documentMessage) {
