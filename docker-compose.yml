@@ -4,8 +4,10 @@ services:
       context: rest
     container_name: rest
     depends_on:
-      - db
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
     environment:
       SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 64MB
       SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 256MB
@@ -24,7 +26,8 @@ services:
       context: ocr
     container_name: ocr
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
     environment:
       SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
       SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT}
@@ -32,7 +35,7 @@ services:
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
 
   rabbitmq:
-    image: rabbitmq:3.13-management
+    image: rabbitmq:4-management
     container_name: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
@@ -40,6 +43,12 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+      start_period: 10s
 
   db:
     image: postgres:15
@@ -50,11 +59,19 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h 127.0.0.1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
 
   adminer:
     image: adminer:5.4.0
     container_name: adminer
-    depends_on: [ db ]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
     environment:
       ADMINER_DEFAULT_SERVER: db
     ports:
