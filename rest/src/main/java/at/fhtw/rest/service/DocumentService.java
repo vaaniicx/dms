@@ -6,8 +6,8 @@ import at.fhtw.rest.persistence.entity.DocumentEntity;
 import at.fhtw.rest.persistence.repository.DocumentRepository;
 import at.fhtw.rest.messaging.DocumentMessagePublisher;
 import at.fhtw.rest.messaging.dto.DocumentMessage;
+import at.fhtw.rest.storage.ObjectStorageService;
 import com.openapi.gen.springboot.dto.DocumentDto;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.io.RandomAccessRead;
 import org.apache.pdfbox.io.RandomAccessReadBuffer;
@@ -16,6 +16,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.common.PDMetadata;
 import org.apache.tika.Tika;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,15 +30,29 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
-@AllArgsConstructor
 public class DocumentService {
     private final DocumentRepository repository;
     private final DocumentMapper mapper;
     private final DocumentMessagePublisher messagePublisher;
+    private final ObjectStorageService storageService;
     private static final Tika TIKA = new Tika();
+
+    @Autowired
+    public DocumentService(
+            DocumentRepository repository,
+            @Qualifier("documentMapperImpl") DocumentMapper mapper,
+            DocumentMessagePublisher messagePublisher,
+            ObjectStorageService storageService
+    ) {
+        this.repository = repository;
+        this.mapper = mapper;
+        this.messagePublisher = messagePublisher;
+        this.storageService = storageService;
+    }
 
     public DocumentEntity save(MultipartFile file) {
         if (file.isEmpty()) {
@@ -75,15 +91,21 @@ public class DocumentService {
         );
 
         DocumentEntity document = builder.build();
+
+        String objectKey = generateObjectKey(file.getOriginalFilename());
+        try {
+            storageService.upload(objectKey, file.getInputStream(), file.getSize(), contentType);
+            document.setObjectKey(objectKey);
+        } catch (IOException e) {
+            log.error("Failed to upload file to object storage", e);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not upload file");
+        }
+
         DocumentEntity saved = repository.save(document);
 
         try {
-            byte[] content = file.getBytes();
-            DocumentMessage message = DocumentMessage.from(saved.getId(), content);
+            DocumentMessage message = DocumentMessage.of(saved.getId(), objectKey);
             messagePublisher.send(message);
-        } catch (IOException e) {
-            log.error("Failed to read file content for document {}", saved.getId(), e);
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Could not read file content");
         } catch (DocumentMessagingException e) {
             log.error("Failed to enqueue document {}", saved.getId(), e);
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Could not forward document to OCR queue");
@@ -149,6 +171,14 @@ public class DocumentService {
 
     private String emptyToNull(String value) {
         return value == null || value.isBlank() ? null : value;
+    }
+
+    private String generateObjectKey(String originalFilename) {
+        String ext = ".pdf";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            ext = originalFilename.substring(originalFilename.lastIndexOf('.'));
+        }
+        return UUID.randomUUID() + ext;
     }
 
     private record PdfMetadata(Long pageCount, String title, String author, Instant createdAt, Instant updatedAt) {}

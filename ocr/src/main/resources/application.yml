@@ -6,3 +6,12 @@ spring:
     port: 5672
     username: guest
     password: guest
+
+ocr:
+  minio:
+    endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET_KEY:minioadmin}
+    bucket: ${MINIO_BUCKET:documents}
+  language: ${OCR_LANG:eng}
+  dpi: ${OCR_DPI:300}

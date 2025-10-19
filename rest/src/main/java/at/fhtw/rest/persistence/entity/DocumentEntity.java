@@ -36,6 +36,8 @@ public class DocumentEntity {
     @Enumerated(EnumType.STRING)
     private DocumentStatus docStatus = DocumentStatus.UPLOADED;
 
+    private String objectKey;
+
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private Instant insertedAt;

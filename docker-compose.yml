@@ -1,14 +1,18 @@
 services:
   rest:
     build:
-      context: rest
+      context: .
+      dockerfile: rest/Dockerfile
     container_name: rest
     depends_on:
       rmq:
         condition: service_healthy
       db:
         condition: service_healthy
+      minio:
+        condition: service_healthy
     environment:
+      SPRING_PROFILES_ACTIVE: docker
       SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE: 64MB
       SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE: 256MB
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
@@ -18,25 +22,54 @@ services:
       SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT}
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
     ports:
       - "8080:8080"
 
   ocr:
     build:
-      context: ocr
+      context: .
+      dockerfile: ocr/Dockerfile
     container_name: ocr
     depends_on:
       rmq:
         condition: service_healthy
+      minio:
+        condition: service_healthy
     environment:
+      SPRING_PROFILES_ACTIVE: docker
       SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
       SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT}
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+
+  db:
+    image: postgres:16-alpine
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rmq:
-    image: rabbitmq:4-management
-    container_name: rmq
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
@@ -44,43 +77,29 @@ services:
       - "5672:5672"
       - "15672:15672"
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 15
-      start_period: 10s
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  db:
-    image: postgres:15
-    container_name: db
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
     ports:
-      - "5432:5432"
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h 127.0.0.1"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-      start_period: 10s
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  adminer:
-    image: adminer:5.4.0
-    container_name: dbm
-    depends_on:
-      rmq:
-        condition: service_healthy
-    environment:
-      ADMINER_DEFAULT_SERVER: db
-    ports:
-      - "9090:8080"
-
-  ui:
-    build:
-      context: ui
-    container_name: ui
-    depends_on: [ rest ]
-    ports:
-      - "80:80"
+volumes:
+  postgres_data:
+  minio_data:
