@@ -29,15 +29,15 @@ export async function uploadDocument(file: File): Promise<number> {
         response.headers?.location ?? response.headers?.Location;
 
     if (!locationHeader) {
-        throw new Error("Upload succeeded but no document location was returned");
+        throw new Error(
+            "Upload succeeded but no document location was returned",
+        );
     }
 
     const match = locationHeader.match(/\/(\d+)(?:\/)?$/);
 
     if (!match) {
-        throw new Error(
-            `Upload succeeded but the document id could not be parsed from ${locationHeader}`,
-        );
+        throw new Error(`Failed to parse documentId from ${locationHeader}`);
     }
 
     return Number(match[1]);

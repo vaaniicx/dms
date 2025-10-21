@@ -26,6 +26,12 @@ logging:
 logbook:
   format.style: http
   write.max-body-size: 10000
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: dms
+
 --- # CI/CD Integration Profile (uses H2)
 spring:
   config:

@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @EnableRabbit
-public class RabbitMQConfig {
+public class RabbitMqConfig {
 
     public static final String DOCUMENT_EXCHANGE = "document.exchange";
     public static final String DOCUMENT_UPLOAD_QUEUE = "ocr.document.uploaded";

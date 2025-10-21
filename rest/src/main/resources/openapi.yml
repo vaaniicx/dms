@@ -117,6 +117,8 @@ components:
         id:
           type: integer
           format: int64
+        objectKey:
+          type: string
         fileName:
           type: string
         fileSize:
