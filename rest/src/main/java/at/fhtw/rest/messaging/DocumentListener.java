@@ -9,12 +9,12 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import static at.fhtw.rest.config.RabbitMQConfig.DOCUMENT_PROCESSED_QUEUE;
+import static at.fhtw.rest.config.RabbitMqConfig.DOCUMENT_PROCESSED_QUEUE;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DocumentReplyListener {
+public class DocumentListener {
     private final DocumentRepository repository;
 
     @RabbitListener(queues = DOCUMENT_PROCESSED_QUEUE)

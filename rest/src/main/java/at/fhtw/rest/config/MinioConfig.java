@@ -1,0 +1,36 @@
+package at.fhtw.rest.config;
+
+import io.minio.BucketExistsArgs;
+import io.minio.MakeBucketArgs;
+import io.minio.MinioClient;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Slf4j
+@Configuration
+@EnableConfigurationProperties(MinioProperties.class)
+public class MinioConfig {
+    @Bean
+    MinioClient minioClient(MinioProperties properties) {
+        return MinioClient.builder()
+                .endpoint(properties.endpoint())
+                .credentials(properties.accessKey(), properties.secretKey())
+                .build();
+    }
+
+    @Bean(initMethod = "ensure")
+    MinioBucketEnsurer minioBucketEnsurer(MinioClient client, MinioProperties properties) {
+        return new MinioBucketEnsurer(client, properties);
+    }
+
+    record MinioBucketEnsurer(MinioClient client, MinioProperties properties) {
+        public void ensure() throws Exception {
+            if (!client.bucketExists(BucketExistsArgs.builder().bucket(properties.bucket()).build())) {
+                log.info("Creating bucket {} because it does not exist", properties.bucket());
+                client.makeBucket(MakeBucketArgs.builder().bucket(properties().bucket()).build());
+            }
+        }
+    }
+}

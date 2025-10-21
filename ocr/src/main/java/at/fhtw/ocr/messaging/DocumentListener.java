@@ -17,7 +17,7 @@ import static at.fhtw.ocr.config.RabbitMQConfig.DOCUMENT_PROCESSED_ROUTING_KEY;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DocumentMessageListener {
+public class DocumentListener {
     private final RabbitTemplate template;
 
     @RabbitListener(queues = DOCUMENT_UPLOAD_QUEUE)

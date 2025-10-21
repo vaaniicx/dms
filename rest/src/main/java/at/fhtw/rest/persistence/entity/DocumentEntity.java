@@ -23,6 +23,8 @@ public class DocumentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String objectKey;
+
     private String fileType;
     private String fileName;
     private Long fileSize;
