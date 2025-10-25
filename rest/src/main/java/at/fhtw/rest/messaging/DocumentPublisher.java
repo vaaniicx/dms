@@ -19,21 +19,10 @@ public class DocumentPublisher {
 
     public void send(DocumentMessage documentMessage) {
         try {
-            rabbitTemplate.convertAndSend(
-                DOCUMENT_EXCHANGE,
-                DOCUMENT_UPLOAD_ROUTING_KEY,
-                documentMessage
-            );
-            log.info(
-                "Sent document #{} to OCR queue",
-                documentMessage.documentId()
-            );
+            rabbitTemplate.convertAndSend(DOCUMENT_EXCHANGE, DOCUMENT_UPLOAD_ROUTING_KEY, documentMessage);
+            log.info("Sent document #{} to OCR queue", documentMessage.documentId());
         } catch (Exception ex) {
-            log.error(
-                "Failed to send document #{} to OCR queue",
-                documentMessage.documentId(),
-                ex
-            );
+            log.error("Failed to send document #{} to OCR queue", documentMessage.documentId(), ex);
             throw new DocumentMessagingException("Failed to send message", ex);
         }
     }
