@@ -20,8 +20,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class DocumentMetadata {
-    public record PdfMetadata(Long pageCount, String title, String author, Instant createdAt, Instant updatedAt) {
-    }
+    public record PdfMetadata(
+        Long pageCount, 
+        String title, 
+        String author, 
+        Instant createdAt, 
+        Instant updatedAt
+    ) {}
 
     public Optional<PdfMetadata> extract(MultipartFile file) {
         try (RandomAccessRead rar = new RandomAccessReadBuffer(file.getInputStream())) {
@@ -53,5 +58,4 @@ public class DocumentMetadata {
             return Optional.empty();
         }
     }
-
 }
