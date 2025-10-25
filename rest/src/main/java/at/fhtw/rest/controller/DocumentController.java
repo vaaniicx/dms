@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 import java.net.URI;
 import java.util.List;
@@ -29,10 +31,10 @@ public class DocumentController implements DocumentApi {
         DocumentEntity saved = service.save(file);
 
         URI location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(saved.getId())
-                .toUri();
+            .fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(saved.getId())
+            .toUri();
 
         return ResponseEntity.created(location).build();
     }
@@ -45,8 +47,8 @@ public class DocumentController implements DocumentApi {
     @Override
     public ResponseEntity<DocumentDto> getDocumentById(Long id) {
         return service.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+            .map(ResponseEntity::ok)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
     }
 
     @DeleteMapping("/api/v1/documents/{id}")
