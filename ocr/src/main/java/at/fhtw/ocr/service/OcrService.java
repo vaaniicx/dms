@@ -14,9 +14,9 @@ import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.StringJoiner;
 
+@Slf4j
 @Service
 @AllArgsConstructor
-@Slf4j
 public class OcrService {
     private final DocumentStorage storage;
 
