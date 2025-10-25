@@ -93,10 +93,11 @@ public class DocumentService {
     }
 
     public void delete(Long id) {
-        if (!repository.existsById(id)) {
-            throw new DocumentNotFoundException("Document not found");
+        DocumentEntity entity = repository.findById(id).orElseThrow(() ->
+            new DocumentNotFoundException("Document not found"));
+        if (entity.getObjectKey() != null) {
+            storage.delete(entity.getObjectKey());
         }
-
         repository.deleteById(id);
     }
 }
