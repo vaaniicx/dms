@@ -2,13 +2,14 @@ package at.fhtw.rest.controller;
 
 import at.fhtw.rest.persistence.entity.DocumentEntity;
 import at.fhtw.rest.service.DocumentService;
+import at.fhtw.rest.service.DownloadableDocument;
 import com.openapi.gen.springboot.api.DocumentApi;
 import com.openapi.gen.springboot.dto.DocumentDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,9 +52,20 @@ public class DocumentController implements DocumentApi {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
     }
 
-    @DeleteMapping("/api/v1/documents/{id}")
-    public ResponseEntity<Void> deleteDocument(@PathVariable Long id) {
+    @Override
+    public ResponseEntity<Void> deleteDocument(Long id) {
         service.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<Resource> downloadDocument(Long id, Boolean inline) {
+        DownloadableDocument document = service.download(id);
+        String disposition = (inline != null && inline) ? "inline" : "attachment";
+
+        return ResponseEntity.ok()
+            .header("Content-Disposition", disposition + "; filename=\"" + document.fileName() + "\"")
+            .contentType(MediaType.parseMediaType(document.contentType()))
+            .body(document.stream());
     }
 }

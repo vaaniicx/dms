@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 import at.fhtw.rest.exception.DocumentNotFoundException;
+import org.springframework.core.io.InputStreamResource;
+import java.io.InputStream;
+
 
 @Slf4j
 @Service
@@ -99,5 +102,19 @@ public class DocumentService {
             storage.delete(entity.getObjectKey());
         }
         repository.deleteById(id);
+    }
+
+    public DownloadableDocument download(Long id) {
+        DocumentEntity entity = repository.findById(id).orElseThrow(() ->
+            new DocumentNotFoundException("Document not found"));
+
+        if (entity.getObjectKey() == null) {
+            throw new DocumentNotFoundException("No object stored for document");
+        }
+
+        InputStream inputStream = storage.load(entity.getObjectKey());
+        return new DownloadableDocument(new InputStreamResource(inputStream),
+            entity.getFileName() != null ? entity.getFileName() : "document",
+            entity.getFileType() != null ? entity.getFileType() : "application/octet-stream");
     }
 }

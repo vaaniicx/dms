@@ -134,6 +134,9 @@ function DocumentSearch() {
                     data={mapDocuments(documents)}
                     loading={loading}
                     onDelete={showModal}
+                    onPreview={(id: number) => {
+                        window.location.href = `/api/v1/documents/${id}/download?inline=true`;
+                    }}
                 />
             </section>
 
