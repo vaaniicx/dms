@@ -116,6 +116,34 @@ paths:
         "204": { description: Document deleted }
         "404": { description: Not Found }
 
+  /api/v1/documents/{id}/download:
+    get:
+      tags: [Document]
+      summary: Download document file by id
+      operationId: downloadDocument
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: inline
+          in: query
+          required: false
+          schema:
+            type: boolean
+          description: If true, serve the file inline for browser preview instead of attachment download
+      responses:
+        "200":
+          description: File stream
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "404": { description: Not Found }
+
 components:
   schemas:
     StatusDto:

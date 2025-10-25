@@ -34,7 +34,7 @@ public class DocumentStorage {
                 .stream(inputStream, file.getSize(), -1)
                 .build()
             );
-            log.info("Stored object '{}' ({} bytes) in bucket '{}'", objectKey, file.getSize(), properties.bucket());
+            log.info("Stored object '{}' in bucket '{}'", objectKey, properties.bucket());
             return objectKey;
         } catch (Exception ex) {
             log.error("Failed to store object '{}' in bucket '{}'", objectKey, properties.bucket(), ex);
@@ -52,6 +52,18 @@ public class DocumentStorage {
         } catch (Exception ex) {
             log.error("Failed to delete object '{}' from bucket '{}'", objectKey, properties.bucket(), ex);
             throw new DocumentStorageException("Failed to delete object from MinIO", ex);
+        }
+    }
+
+    public InputStream load(String objectKey) {
+        try {
+            return client.getObject(GetObjectArgs.builder()
+                .bucket(properties.bucket())
+                .object(objectKey)
+                .build());
+        } catch (Exception ex) {
+            log.error("Failed to load object '{}' from bucket '{}'", objectKey, properties.bucket(), ex);
+            throw new DocumentStorageException("Failed to load object from MinIO", ex);
         }
     }
 
