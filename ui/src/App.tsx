@@ -1,10 +1,17 @@
-import { Button } from "@/components/ui/button";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeToggle } from "@/components/theme-toggle";
+import type { ReactNode } from "react";
 
-function App() {
+type AppProps = {
+    children?: ReactNode;
+};
+
+function App({ children }: AppProps) {
     return (
-        <div className="flex min-h-svh flex-col items-center justify-center">
-            <Button>Click me</Button>
-        </div>
+        <ThemeProvider>
+            <ThemeToggle />
+            {children}
+        </ThemeProvider>
     );
 }
 
