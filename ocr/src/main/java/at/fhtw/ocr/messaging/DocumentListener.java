@@ -20,7 +20,7 @@ public class DocumentListener {
     private final RabbitTemplate rabbit;
     private final OcrService ocr;
 
-    @RabbitListener(queues = DOCUMENT_UPLOAD_QUEUE)
+    @RabbitListener(queues = DOCUMENT_UPLOAD_QUEUE, concurrency = "2-8")
     public void handle(DocumentMessage message) {
         log.info("Received {}", message);
         try {
@@ -29,6 +29,7 @@ public class DocumentListener {
             rabbit.convertAndSend(DOCUMENT_EXCHANGE, DOCUMENT_PROCESSED_ROUTING_KEY, reply);
         } catch (Exception ex) {
             log.error("Failed to process {}", message, ex);
+            throw new RuntimeException(ex);
         }
     }
 }

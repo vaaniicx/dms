@@ -10,7 +10,6 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.stereotype.Service;
 
-import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.StringJoiner;
 
@@ -33,6 +32,7 @@ public class OcrService {
             }
         } catch (Exception ex) {
             log.error("Failed to perform OCR on object {}", objectKey, ex);
+            throw new RuntimeException("Failed to perform OCR", ex);
         }
         return joiner.toString();
     }
