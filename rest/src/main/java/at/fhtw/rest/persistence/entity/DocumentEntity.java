@@ -36,7 +36,11 @@ public class DocumentEntity {
     private Instant docUpdatedAt;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     private DocumentStatus docStatus = DocumentStatus.UPLOADED;
+
+    @Lob
+    private String extractedText;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

@@ -74,12 +74,8 @@ public class DocumentService {
         DocumentEntity saved = repository.save(document);
 
         try {
-            byte[] content = file.getBytes();
-            DocumentMessage message = DocumentMessage.from(saved.getId(), content);
+            DocumentMessage message = DocumentMessage.from(saved.getId(), objectKey);
             publisher.send(message);
-        } catch (IOException e) {
-            log.error("Failed to read file content for document {}", saved.getId(), e);
-            throw new at.fhtw.rest.exception.DocumentStorageException("Failed to read file content", e);
         } catch (DocumentMessagingException e) {
             throw new DocumentMessagingException("Failed to enqueue document " + saved.getId(), e);
         }

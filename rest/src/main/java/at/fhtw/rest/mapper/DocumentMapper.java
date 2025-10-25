@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 @Mapper(componentModel = "spring", uses = DocumentFormatter.class)
 public interface DocumentMapper {
@@ -25,6 +26,10 @@ public interface DocumentMapper {
 
     default Instant map(OffsetDateTime odt) {
         return odt == null ? null : odt.toInstant();
+    }
+
+    default JsonNullable<String> map(String value) {
+        return value == null ? JsonNullable.<String>undefined() : JsonNullable.of(value);
     }
 }
 
