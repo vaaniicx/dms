@@ -3,7 +3,9 @@ package at.fhtw.rest.persistence.storage;
 import at.fhtw.rest.config.MinioProperties;
 import at.fhtw.rest.exception.DocumentStorageException;
 import io.minio.MinioClient;
+import io.minio.GetObjectArgs;
 import io.minio.PutObjectArgs;
+import io.minio.RemoveObjectArgs;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,11 +28,11 @@ public class DocumentStorage {
         String objectKey = generateObjectKey(fileExtension);
         try (InputStream inputStream = file.getInputStream()) {
             client.putObject(PutObjectArgs.builder()
-                    .bucket(properties.bucket())
-                    .object(objectKey)
-                    .contentType(file.getContentType())
-                    .stream(inputStream, file.getSize(), -1)
-                    .build()
+                .bucket(properties.bucket())
+                .object(objectKey)
+                .contentType(file.getContentType())
+                .stream(inputStream, file.getSize(), -1)
+                .build()
             );
             log.info("Stored object '{}' ({} bytes) in bucket '{}'", objectKey, file.getSize(), properties.bucket());
             return objectKey;
@@ -40,11 +42,24 @@ public class DocumentStorage {
         }
     }
 
+    public void delete(String objectKey) {
+        try {
+            client.removeObject(RemoveObjectArgs.builder()
+                .bucket(properties.bucket())
+                .object(objectKey)
+                .build());
+            log.info("Deleted object '{}' from bucket '{}'", objectKey, properties.bucket());
+        } catch (Exception ex) {
+            log.error("Failed to delete object '{}' from bucket '{}'", objectKey, properties.bucket(), ex);
+            throw new DocumentStorageException("Failed to delete object from MinIO", ex);
+        }
+    }
+
     private static String generateObjectKey(String fileExtension) {
         UUID uuid = UUID.randomUUID();
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES * 2)
-                .putLong(uuid.getMostSignificantBits())
-                .putLong(uuid.getLeastSignificantBits());
+            .putLong(uuid.getMostSignificantBits())
+            .putLong(uuid.getLeastSignificantBits());
         return String.format("documents/%s.%s", ENCODER.encodeToString(buffer.array()), fileExtension);
     }
 }
