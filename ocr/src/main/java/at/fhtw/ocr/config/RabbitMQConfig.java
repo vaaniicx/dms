@@ -31,19 +31,19 @@ public class RabbitMQConfig {
         Queue processedQueue = new Queue(DOCUMENT_PROCESSED_QUEUE, true);
 
         Binding uploadBinding = BindingBuilder.bind(uploadQueue)
-                .to(exchange)
-                .with(DOCUMENT_UPLOAD_ROUTING_KEY);
+            .to(exchange)
+            .with(DOCUMENT_UPLOAD_ROUTING_KEY);
 
         Binding processedBinding = BindingBuilder.bind(processedQueue)
-                .to(exchange)
-                .with(DOCUMENT_PROCESSED_ROUTING_KEY);
+            .to(exchange)
+            .with(DOCUMENT_PROCESSED_ROUTING_KEY);
 
         return new Declarables(
-                exchange,
-                uploadQueue,
-                processedQueue,
-                uploadBinding,
-                processedBinding
+            exchange,
+            uploadQueue,
+            processedQueue,
+            uploadBinding,
+            processedBinding
         );
     }
 

@@ -23,8 +23,9 @@ public class DocumentListener {
         long id = reply.documentId();
         repository.findById(id).ifPresentOrElse(document -> {
             document.setDocStatus(DocumentStatus.SCANNED);
+            document.setExtractedText(reply.extractedText());
             repository.save(document);
-            log.info("Marked document #{} as SCANNED", id);
+            log.info("Stored OCR text and marked document #{} as SCANNED", id);
         }, () -> log.warn("Received OCR reply for unknown document #{}", id));
     }
 }

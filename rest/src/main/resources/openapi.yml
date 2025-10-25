@@ -195,6 +195,9 @@ components:
         docUpdatedAt:
           type: string
           format: date-time
+        extractedText:
+          type: string
+          nullable: true
         insertedAt:
           type: string
           format: date-time

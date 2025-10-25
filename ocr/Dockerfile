@@ -14,6 +14,16 @@ RUN mvn clean package
 FROM eclipse-temurin:22-jre
 WORKDIR /app
 
+# Install OCR runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+	tesseract-ocr \
+	libtesseract-dev \
+	tesseract-ocr-all \
+	&& rm -rf /var/lib/apt/lists/*
+
+# tessdata path used by tess4j
+ENV TESSDATA_PREFIX=/usr/share/tesseract-ocr/5/tessdata
+
 # copy jar from builder stage
 COPY --from=builder /workspace/target/*-SNAPSHOT.jar app.jar
 
