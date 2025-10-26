@@ -1,6 +1,7 @@
 import { ThemeProvider } from "@/components/theme-provider";
 import Header from "@/components/header";
 import About from "./pages/About";
+import Upload from "./pages/Upload";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
 
@@ -23,6 +24,8 @@ function App({ children }: AppProps) {
         switch (route) {
             case "/about":
                 return <About />;
+            case "/upload":
+                return <Upload />;
             default:
                 return children ?? null;
         }
