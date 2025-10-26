@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@/components/theme-provider";
-import { ThemeToggle } from "@/components/theme-toggle";
+import Header from "@/components/header";
 import type { ReactNode } from "react";
 
 type AppProps = {
@@ -9,7 +9,7 @@ type AppProps = {
 function App({ children }: AppProps) {
     return (
         <ThemeProvider>
-            <ThemeToggle />
+            <Header />
             {children}
         </ThemeProvider>
     );
