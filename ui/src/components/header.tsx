@@ -8,16 +8,16 @@ export function Header() {
             <div className="container flex justify-between mx-auto">
                 <div className="flex gap-2">
                     <Button asChild variant="ghost">
-                        <a href="/browse"><FileText /></a>
+                        <a href="/browse" ><FileText /></a>
                     </Button>
                     <Button asChild variant="ghost">
-                        <a href="/browse">Browse</a>
+                        <a href="/browse" className="text-muted-foreground">Browse</a>
                     </Button>
                     <Button asChild variant="ghost">
-                        <a href="/upload">Upload</a>
+                        <a href="/upload" className="text-muted-foreground">Upload</a>
                     </Button>
                     <Button asChild variant="ghost">
-                        <a href="/about">About</a>
+                        <a href="/about" className="text-muted-foreground">About</a>
                     </Button>
                 </div>
 
