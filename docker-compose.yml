@@ -118,6 +118,7 @@ services:
   gen-ai:
     build:
       context: gen-ai
+    container_name: gen-ai
     depends_on:
       - ollama
     ports:
