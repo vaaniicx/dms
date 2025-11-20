@@ -14,7 +14,16 @@ public class SummarizerService {
 
     public String summarize(String extractedText) {
         return chatClient.prompt()
-                .system("Summarize the following text. Only print the summarized paragraph.")
+                .system("""
+                        Summarize the following text.
+                        
+                        HARD RULES:
+                        • Output must be EXACTLY ONE paragraph.
+                        • NO titles, headings, bullet points, numbers, or labels.
+                        • NO section names like "General Goals:" or "Structure:".
+                        • NO line breaks. NO formatting. NO explanations.
+                        • Output ONLY the paragraph of summary text. Nothing before or after it.
+                        """)
                 .user(extractedText)
                 .call()
                 .content();
