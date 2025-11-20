@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: ocr
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+logging:
+  level:
+    org.springframework.web: INFO
+    at.fhtw.rest: INFO
+    org.zalando.logbook: TRACE
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: dms
+

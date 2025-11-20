@@ -6,6 +6,9 @@
       <list>
         <option value="$PROJECT_DIR$/rest/pom.xml" />
         <option value="$PROJECT_DIR$/ocr/pom.xml" />
+        <option value="$PROJECT_DIR$/gen-ai/pom.xml" />
+        <option value="$PROJECT_DIR$/message-queue/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </list>
     </option>
   </component>

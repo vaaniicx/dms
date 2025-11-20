@@ -1,0 +1,11 @@
+spring:
+  ai:
+    ollama:
+      chat:
+        model: llama3
+      base-url: http://ollama:11434
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
