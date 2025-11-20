@@ -1,9 +1,7 @@
 package at.fhtw.ocr.message.consumer;
 
 import at.fhtw.message.QueueName;
-import at.fhtw.message.document.DocumentProcessedMessage;
 import at.fhtw.message.document.DocumentScannedMessage;
-import at.fhtw.message.document.DocumentSummarizedMessage;
 import at.fhtw.message.document.DocumentUploadedMessage;
 import at.fhtw.ocr.message.publisher.MessagePublisher;
 import at.fhtw.ocr.service.OcrService;
@@ -35,19 +33,6 @@ public class MessageConsumer {
                 new DocumentScannedMessage(consumedMessage.documentId(), extractedText);
         try {
             messagePublisher.publishDocumentScanned(documentScannedMessage);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @RabbitListener(queues = QueueName.DOCUMENT_SUMMARIZED)
-    public void consumeDocumentSummarized(final DocumentSummarizedMessage consumedMessage) {
-        log.info("Consuming DocumentSummarizedMessage");
-
-        DocumentProcessedMessage documentProcessedMessage =
-                new DocumentProcessedMessage(consumedMessage.documentId(), consumedMessage.summarizedText());
-        try {
-            messagePublisher.publishDocumentProcessed(documentProcessedMessage);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

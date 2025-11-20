@@ -1,7 +1,7 @@
 package at.fhtw.rest.message.consumer;
 
 import at.fhtw.message.QueueName;
-import at.fhtw.message.document.DocumentProcessedMessage;
+import at.fhtw.message.document.DocumentSummarizedMessage;
 import at.fhtw.rest.persistence.model.DocumentStatus;
 import at.fhtw.rest.persistence.repository.DocumentRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +16,9 @@ public class MessageConsumer {
 
     private final DocumentRepository documentRepository;
 
-    @RabbitListener(queues = QueueName.DOCUMENT_PROCESSED)
-    public void consumeDocumentUploaded(final DocumentProcessedMessage consumedMessage) {
-        log.info("Consuming DocumentProcessedMessage");
+    @RabbitListener(queues = QueueName.DOCUMENT_SUMMARIZED)
+    public void consumeDocumentSummarized(final DocumentSummarizedMessage consumedMessage) {
+        log.info("Consuming DocumentSummarizedMessage");
 
         documentRepository.findById(consumedMessage.documentId())
                 .ifPresentOrElse(document -> {

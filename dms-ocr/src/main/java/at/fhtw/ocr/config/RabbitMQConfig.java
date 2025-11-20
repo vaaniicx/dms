@@ -27,13 +27,7 @@ public class RabbitMQConfig {
                 .to(exchange)
                 .with(RoutingKey.DOCUMENT_UPLOADED);
 
-        Queue scanQueue = new Queue(QueueName.DOCUMENT_SCANNED, true);
-        Binding scanBinding = BindingBuilder
-                .bind(scanQueue)
-                .to(exchange)
-                .with(RoutingKey.DOCUMENT_SCANNED);
-
-        return new Declarables(exchange, uploadQueue, uploadBinding, scanQueue, scanBinding);
+        return new Declarables(exchange, uploadQueue, uploadBinding);
     }
 
     @Bean
