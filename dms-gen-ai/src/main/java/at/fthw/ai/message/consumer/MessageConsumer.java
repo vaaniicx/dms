@@ -1,0 +1,35 @@
+package at.fthw.ai.message.consumer;
+
+import at.fhtw.message.QueueName;
+import at.fhtw.message.document.DocumentScannedMessage;
+import at.fhtw.message.document.DocumentSummarizedMessage;
+import at.fthw.ai.message.publisher.MessagePublisher;
+import at.fthw.ai.service.SummarizerService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.stereotype.Service;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class MessageConsumer {
+
+    private final MessagePublisher messagePublisher;
+
+    private final SummarizerService summarizerService;
+
+    @RabbitListener(queues = QueueName.DOCUMENT_SCANNED)
+    public void consumeDocumentScanned(final DocumentScannedMessage consumedMessage) {
+        log.info("Consuming DocumentScannedMessage");
+        String summarizedText = summarizerService.summarize(consumedMessage.extractedText());
+        log.info("Summary: {}", summarizedText);
+
+        DocumentSummarizedMessage documentSummarizedMessage = new DocumentSummarizedMessage(consumedMessage.documentId(), summarizedText);
+        try {
+            messagePublisher.publishDocumentSummarized(documentSummarizedMessage);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}

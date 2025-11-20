@@ -1,7 +1,8 @@
 services:
   rest:
     build:
-      context: rest
+      context: .
+      dockerfile: dms-rest/Dockerfile
     container_name: rest
     depends_on:
       rmq:
@@ -29,7 +30,8 @@ services:
 
   ocr:
     build:
-      context: ocr
+      context: .
+      dockerfile: dms-ocr/Dockerfile
     container_name: ocr
     depends_on:
       rmq:
@@ -117,21 +119,30 @@ services:
 
   gen-ai:
     build:
-      context: gen-ai
+      context: .
+      dockerfile: dms-gen-ai/Dockerfile
     container_name: gen-ai
     depends_on:
-      - ollama
+      rmq:
+        condition: service_healthy
+    environment:
+      SPRING_RABBITMQ_HOST: ${RABBITMQ_HOST}
+      SPRING_RABBITMQ_PORT: ${RABBITMQ_PORT}
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
     ports:
       - "4040:4040"
 
   ollama:
     image: ollama/ollama:latest
     container_name: ollama
+    entrypoint: [ "/usr/bin/bash", "/entrypoint.sh" ]
     ports:
       - "11434:11434"
     volumes:
       - ollama-data:/root/.ollama
-    restart: unless-stopped
+      - ./entrypoint.sh:/entrypoint.sh
+    pull_policy: always
 
 volumes:
   ollama-data:

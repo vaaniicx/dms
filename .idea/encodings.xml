@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/ocr/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dms-commons/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dms-commons/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dms-gen-ai/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dms-ocr/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dms-rest/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/dms-rest/target/generated-sources/openapi/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/rest/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/rest/target/generated-sources/openapi/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Windows/System32/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/../../../../Windows/System32/src/main/resources" charset="UTF-8" />
   </component>
 </project>

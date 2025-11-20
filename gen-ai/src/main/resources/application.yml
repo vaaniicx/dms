@@ -1,5 +1,0 @@
-spring:
-  ai:
-    ollama:
-      chat:
-        model: llama3
