@@ -1,6 +1,5 @@
 package at.fhtw.rest.persistence.entity;
 
-import at.fhtw.rest.persistence.model.DocumentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,9 +34,17 @@ public class DocumentEntity {
     private Instant docCreatedAt;
     private Instant docUpdatedAt;
 
-    @Enumerated(EnumType.STRING)
     @Builder.Default
-    private DocumentStatus docStatus = DocumentStatus.UPLOADED;
+    private boolean uploaded = false;
+
+    @Builder.Default
+    private boolean scanned = false;
+
+    @Builder.Default
+    private boolean summarized = false;
+
+    @Builder.Default
+    private boolean indexed = false;
 
     @Lob
     private String summary;

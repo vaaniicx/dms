@@ -2,7 +2,6 @@ package at.fhtw.rest.message.consumer;
 
 import at.fhtw.message.QueueName;
 import at.fhtw.message.document.DocumentSummarizedMessage;
-import at.fhtw.rest.persistence.model.DocumentStatus;
 import at.fhtw.rest.persistence.repository.DocumentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,9 @@ public class MessageConsumer {
 
         documentRepository.findById(consumedMessage.documentId())
                 .ifPresentOrElse(document -> {
-                    document.setDocStatus(DocumentStatus.SUMMARIZED);
+                    document.setUploaded(true);
+                    document.setScanned(true);
+                    document.setSummarized(true);
                     document.setSummary(consumedMessage.summary());
                     documentRepository.save(document);
                     log.info("Stored summary for document {}", document.getId());

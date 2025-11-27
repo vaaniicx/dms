@@ -73,7 +73,6 @@ function DocumentDashboard() {
             name: doc.docTitle || doc.fileName || "-",
             type: doc.fileExtension || "-",
             author: doc.docAuthor || "",
-            status: doc.docStatus || "-",
             uploadedAt: doc.insertedAt
                 ? new Date(doc.insertedAt).toLocaleString()
                 : "-",
@@ -83,6 +82,11 @@ function DocumentDashboard() {
                     ? `${doc.fileSize} ${doc.fileSizeUnit}`
                     : "-",
             pageCount: doc.docPageCount ?? 0,
+            uploaded: Boolean(doc.uploaded),
+            scanned: Boolean(doc.scanned),
+            summarized: Boolean(doc.summarized),
+            indexed: Boolean(doc.indexed),
+            summary: doc.summary ?? "",
         }));
     }
 

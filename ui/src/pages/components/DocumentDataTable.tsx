@@ -5,11 +5,15 @@ export interface DataType {
     name: string;
     type: string;
     author: string;
-    status: string;
     uploadedAt: string;
     pageCount: number;
     size: string;
     sizeRaw?: number;
+    uploaded: boolean;
+    scanned: boolean;
+    summarized: boolean;
+    indexed: boolean;
+    summary?: string | null;
 }
 
 interface DataTableProps {
@@ -21,6 +25,13 @@ interface DataTableProps {
 
 export default function DataTable(props: DataTableProps) {
     const { data, loading = false, onDelete, onPreview } = props;
+    type StageKey = "uploaded" | "scanned" | "summarized" | "indexed";
+    const pipelineStages: Array<{ key: StageKey; label: string; color: string }> = [
+        { key: "uploaded", label: "Uploaded", color: "gold" },
+        { key: "scanned", label: "Scanned", color: "cyan" },
+        { key: "summarized", label: "Summarized", color: "green" },
+        { key: "indexed", label: "Indexed", color: "blue" },
+    ];
     const columns: TableProps<DataType>["columns"] = [
         {
             title: "Name",
@@ -46,29 +57,28 @@ export default function DataTable(props: DataTableProps) {
             ),
         },
         {
+            title: "Summary",
+            dataIndex: "summary",
+            key: "summary",
+            ellipsis: true,
+            render: (summary: string | null | undefined) =>
+                summary && summary.trim().length > 0 ? summary : "-",
+        },
+        {
             title: "Status",
-            dataIndex: "status",
             key: "status",
-            sorter: (a: DataType, b: DataType) =>
-                (a?.status ?? "").localeCompare(b?.status ?? "", undefined, {
-                    sensitivity: "base",
-                }),
-            render: (status: string | undefined) => {
-                const normalized = status?.toUpperCase?.() ?? "-";
-                const colorMap: Record<string, string> = {
-                    UPLOADED: "gold",
-                    SCANNED: "green",
-                    INDEXED: "blue",
-                    FAILED: "red",
-                    SELECTED: "default",
-                };
-                const color = colorMap[normalized] || "default";
-                return (
-                    <Tag color={color} key={normalized}>
-                        {normalized || "-"}
-                    </Tag>
-                );
-            },
+            render: (_: unknown, record: DataType) => (
+                <Space size={[4, 4]} wrap>
+                    {pipelineStages.map((stage) => (
+                        <Tag
+                            key={stage.key}
+                            color={record[stage.key] ? stage.color : "default"}
+                        >
+                            {stage.label}
+                        </Tag>
+                    ))}
+                </Space>
+            ),
         },
         {
             title: "Date Uploaded",

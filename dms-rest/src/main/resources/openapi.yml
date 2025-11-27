@@ -187,8 +187,14 @@ components:
           type: string
         docAuthor:
           type: string
-        docStatus:
-          type: string
+        uploaded:
+          type: boolean
+        scanned:
+          type: boolean
+        summarized:
+          type: boolean
+        indexed:
+          type: boolean
         docCreatedAt:
           type: string
           format: date-time

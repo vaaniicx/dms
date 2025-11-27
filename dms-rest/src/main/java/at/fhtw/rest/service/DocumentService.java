@@ -76,7 +76,9 @@ public class DocumentService {
                 .docUpdatedAt(m.updatedAt())
         );
 
-        DocumentEntity document = builder.build();
+        DocumentEntity document = builder
+            .uploaded(true)
+            .build();
         DocumentEntity savedDocument = documentRepository.save(document);
 
         DocumentUploadedMessage documentUploadedMessage = new DocumentUploadedMessage(savedDocument.getId(), objectKey);
