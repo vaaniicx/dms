@@ -40,7 +40,7 @@ public class DocumentEntity {
     private DocumentStatus docStatus = DocumentStatus.UPLOADED;
 
     @Lob
-    private String extractedText;
+    private String summary;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

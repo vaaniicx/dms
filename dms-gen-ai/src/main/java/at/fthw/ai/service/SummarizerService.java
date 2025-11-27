@@ -12,7 +12,7 @@ public class SummarizerService {
         this.chatClient = builder.build();
     }
 
-    public String summarize(String extractedText) {
+    public String summarize(String summaryInput) {
         return chatClient.prompt()
                 .system("""
                         Summarize the following text.
@@ -24,7 +24,7 @@ public class SummarizerService {
                         • NO line breaks. NO formatting. NO explanations.
                         • Output ONLY the paragraph of summary text. Nothing before or after it.
                         """)
-                .user(extractedText)
+                .user(summaryInput)
                 .call()
                 .content();
     }

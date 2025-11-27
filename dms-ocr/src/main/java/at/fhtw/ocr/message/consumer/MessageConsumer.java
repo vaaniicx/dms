@@ -26,11 +26,11 @@ public class MessageConsumer {
             throw new IllegalStateException("Received uploaded document which has no object key.");
         }
 
-        String extractedText = ocrService.extractText(consumedMessage.objectKey());
-        log.info("Extracted text: {}", extractedText);
+        String summary = ocrService.extractText(consumedMessage.objectKey());
+        log.info("OCR output text: {}", summary);
 
         DocumentScannedMessage documentScannedMessage =
-                new DocumentScannedMessage(consumedMessage.documentId(), extractedText);
+            new DocumentScannedMessage(consumedMessage.documentId(), summary);
         try {
             messagePublisher.publishDocumentScanned(documentScannedMessage);
         } catch (Exception e) {
