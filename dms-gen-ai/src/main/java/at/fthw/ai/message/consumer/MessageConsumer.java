@@ -22,10 +22,10 @@ public class MessageConsumer {
     @RabbitListener(queues = QueueName.DOCUMENT_SCANNED)
     public void consumeDocumentScanned(final DocumentScannedMessage consumedMessage) {
         log.info("Consuming DocumentScannedMessage");
-        String summarizedText = summarizerService.summarize(consumedMessage.extractedText());
-        log.info("Summary: {}", summarizedText);
+        String summary = summarizerService.summarize(consumedMessage.summary());
+        log.info("Summary: {}", summary);
 
-        DocumentSummarizedMessage documentSummarizedMessage = new DocumentSummarizedMessage(consumedMessage.documentId(), summarizedText);
+        DocumentSummarizedMessage documentSummarizedMessage = new DocumentSummarizedMessage(consumedMessage.documentId(), summary);
         try {
             messagePublisher.publishDocumentSummarized(documentSummarizedMessage);
         } catch (Exception e) {

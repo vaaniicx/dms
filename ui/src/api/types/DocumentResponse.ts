@@ -17,6 +17,7 @@ export interface DocumentResponse {
     docAuthor: string;
     docStatus: DocumentStatus;
     docCreatedAt: string;
+    summary?: string | null;
     insertedAt: string;
     updatedAt: string;
 }

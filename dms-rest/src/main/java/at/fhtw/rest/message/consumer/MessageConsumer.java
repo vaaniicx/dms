@@ -22,9 +22,10 @@ public class MessageConsumer {
 
         documentRepository.findById(consumedMessage.documentId())
                 .ifPresentOrElse(document -> {
-                    document.setDocStatus(DocumentStatus.SCANNED);
-                    document.setExtractedText(consumedMessage.summarizedText()); // todo: rename to summary
-                    log.info("Summarized Text: {}", document.getExtractedText());
+                    document.setDocStatus(DocumentStatus.SUMMARIZED);
+                    document.setSummary(consumedMessage.summary());
+                    documentRepository.save(document);
+                    log.info("Stored summary for document {}", document.getId());
                 }, () -> {
                     log.warn("Received unknown document: {}", consumedMessage.documentId());
                 });
