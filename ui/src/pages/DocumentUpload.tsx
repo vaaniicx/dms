@@ -12,7 +12,10 @@ import Title from "antd/es/typography/Title";
 import type { RcFile } from "antd/es/upload/interface";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { getDocument, uploadDocument } from "../api/services/DocumentService";
-import type { DocumentStatus } from "../api/types/DocumentResponse";
+import type {
+    DocumentResponse,
+    DocumentStatus,
+} from "../api/types/DocumentResponse";
 
 const { Dragger } = Upload;
 
@@ -24,15 +27,18 @@ type UploadRow = {
 };
 
 const POLL_DELAY_MS = 2000;
-const MAX_POLL_ATTEMPTS = 10;
 
 const sleep = (ms: number) =>
     new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
 
-const isProcessedStatus = (status: DocumentStatus) =>
-    status === "SCANNED" || status === "INDEXED";
+const hasCompletedProcessing = (document: DocumentResponse): boolean =>
+    Boolean(document.indexed || document.summarized || document.scanned);
+
+const deriveUploadStatus = (document: DocumentResponse): DocumentStatus => {
+    return hasCompletedProcessing(document) ? "SCANNED" : "UPLOADED";
+};
 
 type StatusPalette = {
     idle: string;
@@ -167,32 +173,21 @@ function DocumentUpload() {
         documentId: number,
         uid: string,
     ): Promise<void> => {
-        for (let attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt += 1) {
+        while (isMounted.current) {
             try {
                 const document = await getDocument(documentId);
-                const nextStatus: DocumentStatus = isProcessedStatus(
-                    document.docStatus,
-                )
-                    ? "SCANNED"
-                    : "UPLOADED";
-
+                const nextStatus = deriveUploadStatus(document);
                 updateUploadRow(uid, { status: nextStatus });
 
-                if (nextStatus === "SCANNED") {
+                if (nextStatus === "SCANNED" || nextStatus === "FAILED") {
                     return;
                 }
             } catch (error) {
-                if (attempt === MAX_POLL_ATTEMPTS - 1) {
-                    throw error;
-                }
+                console.error("Failed to poll document status", error);
             }
 
-            if (attempt < MAX_POLL_ATTEMPTS - 1) {
-                await sleep(POLL_DELAY_MS);
-            }
+            await sleep(POLL_DELAY_MS);
         }
-
-        throw new Error("Timed out while waiting for document processing");
     };
 
     const uploadProps: UploadProps = {

@@ -2,6 +2,7 @@ export type DocumentStatus =
     | "SELECTED"
     | "UPLOADED"
     | "SCANNED"
+    | "SUMMARIZED"
     | "INDEXED"
     | "FAILED";
 
@@ -15,7 +16,10 @@ export interface DocumentResponse {
     docPageCount: number;
     docTitle: string;
     docAuthor: string;
-    docStatus: DocumentStatus;
+    uploaded: boolean;
+    scanned: boolean;
+    summarized: boolean;
+    indexed: boolean;
     docCreatedAt: string;
     summary?: string | null;
     insertedAt: string;
