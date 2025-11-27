@@ -1,4 +1,4 @@
-import { Button, Col, Divider, Modal, Row, Statistic } from "antd";
+import { Button, Card, Col, Divider, Modal, Row, Statistic } from "antd";
 import Title from "antd/es/typography/Title";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -67,6 +67,10 @@ function DocumentDashboard() {
         setSelectedDocument(null);
     };
 
+    const openDocument = (id: number) => {
+        window.location.href = `/api/v1/documents/${id}/download?inline=true`;
+    };
+
     function mapDocuments(docs: DocumentResponse[]): DataType[] {
         return docs.map((doc) => ({
             key: doc.id,
@@ -125,6 +129,37 @@ function DocumentDashboard() {
                 <Title level={2} style={{ margin: 0 }}>
                     Documents
                 </Title>
+
+                <section style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    <Title level={4} style={{ margin: 0 }}>
+                        Highlights
+                    </Title>
+                    <Row gutter={[16, 16]}>
+                        {documents.length === 0 && !loading && (
+                            <Col span={24}>
+                                <Card bordered style={{ background: "transparent" }}>
+                                    No documents available yet.
+                                </Card>
+                            </Col>
+                        )}
+                        {documents.map((doc) => (
+                            <Col xs={24} sm={12} lg={8} key={doc.id}>
+                                <Card
+                                    title={doc.docTitle || doc.fileName || "Untitled"}
+                                    hoverable
+                                    onClick={() => openDocument(doc.id)}
+                                    style={{ height: "100%" }}
+                                    bodyStyle={{ minHeight: 120, display: "flex" }}
+                                >
+                                    <p style={{ margin: 0 }}>
+                                        {doc.summary?.trim() || "No summary available."}
+                                    </p>
+                                </Card>
+                            </Col>
+                        ))}
+                    </Row>
+                </section>
+
                 <DataTable
                     data={mapDocuments(documents)}
                     loading={loading}
