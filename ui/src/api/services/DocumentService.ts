@@ -6,6 +6,18 @@ export async function getDocuments(): Promise<DocumentResponse[]> {
     return data;
 }
 
+export type SearchScope = "content" | "name" | "all";
+
+export async function searchDocuments(
+    query: string,
+    scope: SearchScope,
+): Promise<DocumentResponse[]> {
+    const { data } = await api.get<DocumentResponse[]>("/v1/documents/search", {
+        params: { query, scope },
+    });
+    return data;
+}
+
 export async function getDocument(id: number): Promise<DocumentResponse> {
     const { data } = await api.get<DocumentResponse>(`/v1/documents/${id}`);
     return data;

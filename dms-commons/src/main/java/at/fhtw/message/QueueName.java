@@ -7,4 +7,6 @@ public class QueueName {
     public static final String DOCUMENT_SCANNED = "document.scanned.queue";
 
     public static final String DOCUMENT_SUMMARIZED = "document.summarized.queue";
+
+    public static final String DOCUMENT_INDEXED = "document.indexed.queue";
 }

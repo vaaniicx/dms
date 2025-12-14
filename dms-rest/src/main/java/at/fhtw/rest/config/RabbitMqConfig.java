@@ -33,9 +33,16 @@ public class RabbitMqConfig {
             .to(exchange)
             .with(RoutingKey.DOCUMENT_SUMMARIZED);
 
+        Queue indexedQueue = new Queue(QueueName.DOCUMENT_INDEXED, true);
+        Binding indexedBinding = BindingBuilder
+                .bind(indexedQueue)
+                .to(exchange)
+                .with(RoutingKey.DOCUMENT_INDEXED);
+
         return new Declarables(exchange,
             uploadQueue, uploadBinding,
-            summarizedQueue, summarizedBinding);
+            summarizedQueue, summarizedBinding,
+            indexedQueue, indexedBinding);
     }
 
     @Bean

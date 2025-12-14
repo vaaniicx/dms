@@ -23,6 +23,8 @@ dev    # build & compose up all non-local images (PG, NGINX, ...)
 - [MinIO](http://localhost:9001)
 - [RabbbitMQ](http://localhost:15672)
 - [Adminer](http://localhost:9090)
+- [Elasticsearch](http://localhost:9200)
+- [Kibana](http://localhost:5601)
 
 ## Project Structure
 

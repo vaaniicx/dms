@@ -144,6 +144,34 @@ paths:
                 format: binary
         "404": { description: Not Found }
 
+  /api/v1/documents/search:
+    get:
+      tags: [ Document ]
+      summary: Search documents using Elasticsearch
+      operationId: searchDocuments
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: scope
+          in: query
+          required: false
+          description: Search scope, e.g. content, name, or all
+          schema:
+            type: string
+            enum: [ content, name, all ]
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentDto'
+
 components:
   schemas:
     StatusDto:

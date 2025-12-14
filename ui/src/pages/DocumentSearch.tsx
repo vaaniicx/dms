@@ -1,7 +1,12 @@
-import { Button, Divider, Form, Input, Modal } from "antd";
+import { Button, Divider, Form, Input, Modal, Radio } from "antd";
 import Title from "antd/es/typography/Title";
 import { useEffect, useState } from "react";
-import { deleteDocument, getDocuments } from "../api/services/DocumentService";
+import {
+    deleteDocument,
+    getDocuments,
+    searchDocuments,
+} from "../api/services/DocumentService";
+import type { SearchScope } from "../api/services/DocumentService";
 import type { DocumentResponse } from "../api/types/DocumentResponse";
 import DataTable, { type DataType } from "./components/DocumentDataTable";
 
@@ -40,6 +45,8 @@ function DocumentSearch() {
     const [confirmLoading, setConfirmLoading] = useState(false);
     const [, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [query, setQuery] = useState("");
+    const [scope, setScope] = useState<SearchScope>("content");
 
     useEffect(() => {
         getDocuments()
@@ -75,6 +82,23 @@ function DocumentSearch() {
         setSelectedDocument(null);
     };
 
+    const handleSearch = async () => {
+        setLoading(true);
+        try {
+            if (!query.trim()) {
+                const all = await getDocuments();
+                setDocuments(all);
+            } else {
+                const results = await searchDocuments(query.trim(), scope);
+                setDocuments(results);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     function mapDocuments(docs: DocumentResponse[]): DataType[] {
         return docs.map((doc) => ({
             key: doc.id,
@@ -105,16 +129,43 @@ function DocumentSearch() {
             </header>
 
             <section style={pageStyles.section}>
-                <Form layout="vertical" style={{ width: "100%" }}>
+                <Form
+                    layout="vertical"
+                    style={{ width: "100%" }}
+                    onFinish={handleSearch}
+                >
                     <div style={pageStyles.formRow}>
-                        <Form.Item label="Name" style={pageStyles.formItem}>
-                            <Input placeholder="Document name" allowClear />
+                        <Form.Item
+                            label="Search text"
+                            style={pageStyles.formItem}
+                        >
+                            <Input
+                                placeholder="Search document content"
+                                allowClear
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
+                            />
                         </Form.Item>
-                        <Form.Item label="File Type" style={pageStyles.formItem}>
-                            <Input placeholder="e.g. PDF" allowClear />
-                        </Form.Item>
-                        <Form.Item label="Author" style={pageStyles.formItem}>
-                            <Input placeholder="Author" allowClear />
+                        <Form.Item
+                            label="Search in"
+                            style={pageStyles.formItem}
+                        >
+                            <Radio.Group
+                                value={scope}
+                                onChange={(e) =>
+                                    setScope(e.target.value as SearchScope)
+                                }
+                                optionType="button"
+                                buttonStyle="solid"
+                            >
+                                <Radio.Button value="content">
+                                    Content
+                                </Radio.Button>
+                                <Radio.Button value="name">
+                                    Filename / Title
+                                </Radio.Button>
+                                <Radio.Button value="all">All</Radio.Button>
+                            </Radio.Group>
                         </Form.Item>
                     </div>
                     <div
@@ -123,7 +174,9 @@ function DocumentSearch() {
                             justifyContent: "flex-end",
                         }}
                     >
-                        <Button type="primary">Search</Button>
+                        <Button type="primary" htmlType="submit">
+                            Search
+                        </Button>
                     </div>
                 </Form>
             </section>
