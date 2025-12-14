@@ -95,6 +95,12 @@ public class DocumentService {
         return documentMapper.toDocumentList(documentRepository.findAll());
     }
 
+    public List<DocumentDto> searchByFileName(String query) {
+        return documentMapper.toDocumentList(
+                documentRepository.findByFileNameContainingIgnoreCase(query)
+        );
+    }
+
     public Optional<DocumentDto> findById(Long id) {
         return documentRepository.findById(id).map(documentMapper::toDocument);
     }

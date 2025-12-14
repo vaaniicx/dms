@@ -27,7 +27,15 @@ public class RabbitMQConfig {
                 .to(exchange)
                 .with(RoutingKey.DOCUMENT_UPLOADED);
 
-        return new Declarables(exchange, uploadQueue, uploadBinding);
+        Queue indexedQueue = new Queue(QueueName.DOCUMENT_INDEXED, true);
+        Binding indexedBinding = BindingBuilder
+                .bind(indexedQueue)
+                .to(exchange)
+                .with(RoutingKey.DOCUMENT_INDEXED);
+
+        return new Declarables(exchange,
+                uploadQueue, uploadBinding,
+                indexedQueue, indexedBinding);
     }
 
     @Bean

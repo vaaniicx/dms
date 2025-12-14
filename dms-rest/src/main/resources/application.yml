@@ -35,6 +35,10 @@ minio:
   secret-key: minioadmin
   bucket: dms
 
+elasticsearch:
+  url: http://localhost:9200
+  index: documents
+
 --- # CI/CD Integration Profile (uses H2)
 spring:
   config:

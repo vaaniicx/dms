@@ -15,15 +15,19 @@ public class SummarizerService {
     public String summarize(String summaryInput) {
         return chatClient.prompt()
                 .system("""
-                        Summarize the following text.
-                        
-                        HARD RULES:
-                        • Output must be EXACTLY ONE paragraph.
-                        • NO titles, headings, bullet points, numbers, or labels.
-                        • NO section names like "General Goals:" or "Structure:".
-                        • NO line breaks. NO formatting. NO explanations.
-                        • Output ONLY the paragraph of summary text. Nothing before or after it.
-                        """)
+                    You are given the full text of a PDF document.
+
+                    Write a concise, neutral summary of approximately 50 to 100 words.
+                    Focus on the main topic, purpose, key arguments, and conclusions.
+                    Preserve important technical or factual details where relevant.
+                    Do not include opinions, commentary, or information not present in the text.
+
+                    Constraints:
+                    - Do NOT start the text with phrases like “Here is the summary”, “This document”, or similar meta introductions.
+                    - Do NOT address the reader directly.
+                    - Do NOT ask questions or suggest further discussion.
+                    - Output only the summary text, nothing else.
+                """)
                 .user(summaryInput)
                 .call()
                 .content();

@@ -3,6 +3,7 @@ package at.fhtw.rest.controller;
 import at.fhtw.rest.persistence.entity.DocumentEntity;
 import at.fhtw.rest.service.DocumentService;
 import at.fhtw.rest.service.DownloadableDocument;
+import at.fhtw.rest.service.ElasticsearchSearchService;
 import com.openapi.gen.springboot.api.DocumentApi;
 import com.openapi.gen.springboot.dto.DocumentDto;
 import lombok.AllArgsConstructor;
@@ -26,6 +27,7 @@ import java.util.List;
 @AllArgsConstructor
 public class DocumentController implements DocumentApi {
     private final DocumentService service;
+    private final ElasticsearchSearchService searchService;
 
     @Override
     public ResponseEntity<Void> uploadDocument(MultipartFile file) {
@@ -43,6 +45,48 @@ public class DocumentController implements DocumentApi {
     @Override
     public ResponseEntity<List<DocumentDto>> getDocuments() {
         return ResponseEntity.ok(service.findAll());
+    }
+
+    @Override
+    public ResponseEntity<List<DocumentDto>> searchDocuments(String query, String scope) {
+        String effectiveScope = scope == null || scope.isBlank() ? "content" : scope.toLowerCase();
+
+        if ("name".equals(effectiveScope)) {
+            return ResponseEntity.ok(service.searchByFileName(query));
+        }
+
+        var contentIds = searchService.searchDocumentIds(query);
+
+        if (contentIds.isEmpty()) {
+            if ("all".equals(effectiveScope)) {
+                // No content hits, but maybe there are filename matches
+                return ResponseEntity.ok(service.searchByFileName(query));
+            }
+            return ResponseEntity.ok(List.of());
+        }
+
+        if (!"all".equals(effectiveScope)) {
+            List<DocumentDto> contentMatches = service.findAll().stream()
+                    .filter(dto -> contentIds.contains(dto.getId()))
+                    .toList();
+            return ResponseEntity.ok(contentMatches);
+        }
+
+        // scope == "all": combine content + filename hits
+        List<DocumentDto> nameMatches = service.searchByFileName(query);
+
+        List<Long> nameIds = nameMatches.stream()
+                .map(DocumentDto::getId)
+                .toList();
+
+        List<DocumentDto> allDocuments = service.findAll();
+
+        // Preserve a stable order: by insertedAt or id via the base list
+        List<DocumentDto> combined = allDocuments.stream()
+                .filter(dto -> contentIds.contains(dto.getId()) || nameIds.contains(dto.getId()))
+                .toList();
+
+        return ResponseEntity.ok(combined);
     }
 
     @Override
