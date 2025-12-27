@@ -3,7 +3,7 @@ package at.fhtw.rest.controller;
 import at.fhtw.rest.persistence.entity.DocumentEntity;
 import at.fhtw.rest.service.DocumentService;
 import at.fhtw.rest.service.DownloadableDocument;
-import at.fhtw.rest.service.ElasticsearchSearchService;
+import at.fhtw.rest.service.ElasticsearchService;
 import com.openapi.gen.springboot.api.DocumentApi;
 import com.openapi.gen.springboot.dto.DocumentDto;
 import lombok.AllArgsConstructor;
@@ -26,25 +26,26 @@ import java.util.List;
 @RequestMapping
 @AllArgsConstructor
 public class DocumentController implements DocumentApi {
-    private final DocumentService service;
-    private final ElasticsearchSearchService searchService;
+
+    private final DocumentService documentService;
+
+    private final ElasticsearchService elasticsearchService;
 
     @Override
     public ResponseEntity<Void> uploadDocument(MultipartFile file) {
-        DocumentEntity saved = service.save(file);
+        DocumentEntity savedDocument = documentService.saveDocument(file);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(saved.getId())
+                .buildAndExpand(savedDocument.getId())
                 .toUri();
-
         return ResponseEntity.created(location).build();
     }
 
     @Override
     public ResponseEntity<List<DocumentDto>> getDocuments() {
-        return ResponseEntity.ok(service.findAll());
+        return ResponseEntity.ok(documentService.findAll());
     }
 
     @Override
@@ -52,34 +53,34 @@ public class DocumentController implements DocumentApi {
         String effectiveScope = scope == null || scope.isBlank() ? "content" : scope.toLowerCase();
 
         if ("name".equals(effectiveScope)) {
-            return ResponseEntity.ok(service.searchByFileName(query));
+            return ResponseEntity.ok(documentService.searchByFileName(query));
         }
 
-        var contentIds = searchService.searchDocumentIds(query);
+        var contentIds = elasticsearchService.searchDocumentIds(query);
 
         if (contentIds.isEmpty()) {
             if ("all".equals(effectiveScope)) {
                 // No content hits, but maybe there are filename matches
-                return ResponseEntity.ok(service.searchByFileName(query));
+                return ResponseEntity.ok(documentService.searchByFileName(query));
             }
             return ResponseEntity.ok(List.of());
         }
 
         if (!"all".equals(effectiveScope)) {
-            List<DocumentDto> contentMatches = service.findAll().stream()
+            List<DocumentDto> contentMatches = documentService.findAll().stream()
                     .filter(dto -> contentIds.contains(dto.getId()))
                     .toList();
             return ResponseEntity.ok(contentMatches);
         }
 
         // scope == "all": combine content + filename hits
-        List<DocumentDto> nameMatches = service.searchByFileName(query);
+        List<DocumentDto> nameMatches = documentService.searchByFileName(query);
 
         List<Long> nameIds = nameMatches.stream()
                 .map(DocumentDto::getId)
                 .toList();
 
-        List<DocumentDto> allDocuments = service.findAll();
+        List<DocumentDto> allDocuments = documentService.findAll();
 
         // Preserve a stable order: by insertedAt or id via the base list
         List<DocumentDto> combined = allDocuments.stream()
@@ -91,20 +92,20 @@ public class DocumentController implements DocumentApi {
 
     @Override
     public ResponseEntity<DocumentDto> getDocumentById(Long id) {
-        return service.findById(id)
+        return documentService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
     }
 
     @Override
     public ResponseEntity<Void> deleteDocument(Long id) {
-        service.delete(id);
+        documentService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
     @Override
     public ResponseEntity<Resource> downloadDocument(Long id, Boolean inline) {
-        DownloadableDocument document = service.download(id);
+        DownloadableDocument document = documentService.download(id);
         String disposition = (inline != null && inline) ? "inline" : "attachment";
 
         return ResponseEntity.ok()

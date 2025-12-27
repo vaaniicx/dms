@@ -17,7 +17,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ElasticsearchSearchService {
+public class ElasticsearchService {
 
     private final ObjectMapper objectMapper;
 
