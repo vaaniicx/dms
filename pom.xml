@@ -17,6 +17,7 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>dms-batch-processor</module>
         <module>dms-commons</module>
         <module>dms-gen-ai</module>
         <module>dms-ocr</module>
