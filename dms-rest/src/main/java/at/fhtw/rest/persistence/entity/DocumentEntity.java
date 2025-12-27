@@ -25,13 +25,19 @@ public class DocumentEntity {
     private String objectKey;
 
     private String fileType;
+
     private String fileName;
+
     private Long fileSize;
 
     private Long docPageCount;
+
     private String docTitle;
+
     private String docAuthor;
+
     private Instant docCreatedAt;
+
     private Instant docUpdatedAt;
 
     @Builder.Default
