@@ -39,7 +39,7 @@ public class DocumentService {
 
     private final MessagePublisher messagePublisher;
 
-    public DocumentEntity save(MultipartFile file) {
+    public DocumentEntity saveDocument(MultipartFile file) {
         if (file.isEmpty()) {
             log.error("No file provided");
             throw new IllegalArgumentException("No file provided");
