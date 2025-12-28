@@ -1,4 +1,4 @@
-package at.fhtw.rest.exception;
+package at.fhtw.rest.handler;
 
 import at.fhtw.rest.core.exception.DocumentMessagingException;
 import at.fhtw.rest.core.exception.DocumentNotFoundException;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
 @ControllerAdvice
-public class RestExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(DocumentNotFoundException.class)
     public ResponseEntity<ErrorDto> handleNotFound(DocumentNotFoundException ex) {
