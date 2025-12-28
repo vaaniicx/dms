@@ -21,21 +21,35 @@ public class RabbitMQConfig {
     public Declarables declarables() {
         DirectExchange exchange = new DirectExchange(Exchange.DOCUMENT_EXCHANGE, true, false);
 
-        Queue uploadQueue = new Queue(QueueName.DOCUMENT_UPLOADED, true);
+        Queue uploadQueue = new Queue(QueueName.OCR_DOCUMENT_UPLOADED, true);
         Binding uploadBinding = BindingBuilder
                 .bind(uploadQueue)
                 .to(exchange)
                 .with(RoutingKey.DOCUMENT_UPLOADED);
 
-        Queue indexedQueue = new Queue(QueueName.DOCUMENT_INDEXED, true);
-        Binding indexedBinding = BindingBuilder
-                .bind(indexedQueue)
+        Queue restScanQueue = new Queue(QueueName.REST_DOCUMENT_SCANNED, true);
+        Binding restScanBinding = BindingBuilder
+                .bind(restScanQueue)
+                .to(exchange)
+                .with(RoutingKey.DOCUMENT_SCANNED);
+
+        Queue genAiScanQueue = new Queue(QueueName.GENAI_DOCUMENT_SCANNED, true);
+        Binding genAiScanBinding = BindingBuilder
+                .bind(genAiScanQueue)
+                .to(exchange)
+                .with(RoutingKey.DOCUMENT_SCANNED);
+
+        Queue indexQueue = new Queue(QueueName.REST_DOCUMENT_INDEXED, true);
+        Binding indexBinding = BindingBuilder
+                .bind(indexQueue)
                 .to(exchange)
                 .with(RoutingKey.DOCUMENT_INDEXED);
 
         return new Declarables(exchange,
                 uploadQueue, uploadBinding,
-                indexedQueue, indexedBinding);
+                restScanQueue, restScanBinding,
+                genAiScanQueue, genAiScanBinding,
+                indexQueue, indexBinding);
     }
 
     @Bean

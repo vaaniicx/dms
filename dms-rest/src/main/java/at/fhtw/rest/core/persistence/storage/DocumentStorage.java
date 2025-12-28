@@ -1,7 +1,7 @@
-package at.fhtw.rest.persistence.storage;
+package at.fhtw.rest.core.persistence.storage;
 
 import at.fhtw.rest.config.MinioProperties;
-import at.fhtw.rest.exception.DocumentStorageException;
+import at.fhtw.rest.core.exception.DocumentStorageException;
 import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -20,8 +20,11 @@ import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class DocumentStorage {
+
     private static final Base64.Encoder ENCODER = Base64.getUrlEncoder().withoutPadding();
+
     private final MinioClient client;
+
     private final MinioProperties properties;
 
     public String store(MultipartFile file, String fileExtension) {

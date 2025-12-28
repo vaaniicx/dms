@@ -19,12 +19,11 @@ public class MessageConsumer {
 
     private final SummarizerService summarizerService;
 
-    @RabbitListener(queues = QueueName.DOCUMENT_SCANNED)
+    @RabbitListener(queues = QueueName.GENAI_DOCUMENT_SCANNED)
     public void consumeDocumentScanned(final DocumentScannedMessage consumedMessage) {
-        log.info("Consuming DocumentScannedMessage");
         String summary = summarizerService.summarize(consumedMessage.summary());
-        log.info("Summary: {}", summary);
 
+        // TODO: extract into publisher
         DocumentSummarizedMessage documentSummarizedMessage = new DocumentSummarizedMessage(consumedMessage.documentId(), summary);
         try {
             messagePublisher.publishDocumentSummarized(documentSummarizedMessage);

@@ -1,4 +1,4 @@
-package at.fhtw.rest.service;
+package at.fhtw.rest.core.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

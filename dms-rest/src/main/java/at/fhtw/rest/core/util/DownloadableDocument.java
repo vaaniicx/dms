@@ -1,4 +1,4 @@
-package at.fhtw.rest.service;
+package at.fhtw.rest.core.util;
 
 import org.springframework.core.io.InputStreamResource;
 

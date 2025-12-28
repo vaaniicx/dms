@@ -17,7 +17,6 @@ public class MessagePublisher {
 
     public void publishDocumentSummarized(final DocumentSummarizedMessage message) {
         try {
-            log.info("Publishing DocumentSummarizedMessage");
             rabbitTemplate.convertAndSend(Exchange.DOCUMENT_EXCHANGE, RoutingKey.DOCUMENT_SUMMARIZED, message);
         } catch (Exception e) {
             throw new RuntimeException(e);
