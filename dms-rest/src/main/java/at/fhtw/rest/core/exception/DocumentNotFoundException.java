@@ -1,4 +1,4 @@
-package at.fhtw.rest.exception;
+package at.fhtw.rest.core.exception;
 
 public class DocumentNotFoundException extends RuntimeException {
     public DocumentNotFoundException(String message) {

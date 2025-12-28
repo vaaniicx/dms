@@ -1,5 +1,8 @@
 package at.fhtw.rest.exception;
 
+import at.fhtw.rest.core.exception.DocumentMessagingException;
+import at.fhtw.rest.core.exception.DocumentNotFoundException;
+import at.fhtw.rest.core.exception.DocumentStorageException;
 import com.openapi.gen.springboot.dto.ErrorDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

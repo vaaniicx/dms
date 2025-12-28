@@ -19,7 +19,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StatusDto'
-
   /api/v1/documents:
     get:
       tags: [ Document ]
@@ -33,8 +32,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DocumentDto'
-
+                  $ref: '#/components/schemas/DocumentResponse'
     post:
       tags: [ Document ]
       summary: Upload a document
@@ -45,7 +43,6 @@ paths:
           multipart/form-data:
             schema:
               $ref: '#/components/schemas/MultipartFile'
-
       responses:
         "201":
           description: Document created
@@ -79,12 +76,11 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorDto'
-
   /api/v1/documents/{id}:
     get:
       tags: [ Document ]
       summary: Get document by id
-      operationId: getDocumentById
+      operationId: getDocument
       parameters:
         - name: id
           in: path
@@ -98,9 +94,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DocumentDto'
+                $ref: '#/components/schemas/DocumentResponse'
         "404": { description: Not Found }
-
     delete:
       tags: [ Document ]
       summary: Delete document by id
@@ -115,7 +110,6 @@ paths:
       responses:
         "204": { description: Document deleted }
         "404": { description: Not Found }
-
   /api/v1/documents/{id}/download:
     get:
       tags: [ Document ]
@@ -143,7 +137,6 @@ paths:
                 type: string
                 format: binary
         "404": { description: Not Found }
-
   /api/v1/documents/search:
     get:
       tags: [ Document ]
@@ -170,7 +163,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/DocumentDto'
+                  $ref: '#/components/schemas/DocumentResponse'
 
 components:
   schemas:
@@ -188,6 +181,53 @@ components:
         file:
           type: string
           format: binary
+
+    DocumentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        author:
+          type: string
+        summary:
+          type: string
+        file:
+          $ref: "#/components/schemas/DocumentFileResponse"
+        status:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentStatusHistoryResponse"
+
+    DocumentFileResponse:
+      type: object
+      properties:
+        objectKey:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        size:
+          type: number
+        pageCount:
+          type: integer
+        creationDate:
+          type: string
+          format: date-time
+        modificationDate:
+          type: string
+          format: date-time
+
+    DocumentStatusHistoryResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        changeDate:
+          type: string
+          format: date-time
 
     DocumentDto:
       type: object

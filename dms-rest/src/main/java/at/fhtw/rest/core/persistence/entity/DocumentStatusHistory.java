@@ -1,9 +1,13 @@
-package at.fhtw.rest.persistence.entity;
+package at.fhtw.rest.core.persistence.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "document_status_history")
 public class DocumentStatusHistory {
@@ -17,4 +21,9 @@ public class DocumentStatusHistory {
 
     @Column(name = "change_date")
     private LocalDateTime changeDate;
+
+    public DocumentStatusHistory(DocumentStatus status) {
+        this.status = status;
+        this.changeDate = LocalDateTime.now();
+    }
 }

@@ -1,9 +1,17 @@
-package at.fhtw.rest.persistence.entity;
+package at.fhtw.rest.core.persistence.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "document_file")
 public class DocumentFile {
@@ -19,10 +27,10 @@ public class DocumentFile {
 
     private String type;
 
-    private String size;
+    private double size;
 
     @Column(name = "page_count")
-    private String pageCount;
+    private int pageCount;
 
     @Column(name = "creation_date")
     private LocalDateTime creationDate;

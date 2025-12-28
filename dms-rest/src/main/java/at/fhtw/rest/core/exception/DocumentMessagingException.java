@@ -1,4 +1,4 @@
-package at.fhtw.rest.exception;
+package at.fhtw.rest.core.exception;
 
 public class DocumentMessagingException extends RuntimeException {
     public DocumentMessagingException(String message, Throwable cause) {

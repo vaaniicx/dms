@@ -21,28 +21,35 @@ public class RabbitMqConfig {
     public Declarables declarables() {
         DirectExchange exchange = new DirectExchange(Exchange.DOCUMENT_EXCHANGE, true, false);
 
-        Queue uploadQueue = new Queue(QueueName.DOCUMENT_UPLOADED, true);
-        Binding uploadBinding = BindingBuilder
-                .bind(uploadQueue)
+        Queue ocrUploadQueue = new Queue(QueueName.OCR_DOCUMENT_UPLOADED, true);
+        Binding ocrUploadBinding = BindingBuilder
+                .bind(ocrUploadQueue)
                 .to(exchange)
                 .with(RoutingKey.DOCUMENT_UPLOADED);
 
-        Queue summarizedQueue = new Queue(QueueName.DOCUMENT_SUMMARIZED, true);
-        Binding summarizedBinding = BindingBuilder
-            .bind(summarizedQueue)
+        Queue restScanQueue = new Queue(QueueName.REST_DOCUMENT_SCANNED, true);
+        Binding restScanBinding = BindingBuilder
+                .bind(restScanQueue)
+                .to(exchange)
+                .with(RoutingKey.DOCUMENT_SCANNED);
+
+        Queue restSummaryQueue = new Queue(QueueName.REST_DOCUMENT_SUMMARIZED, true);
+        Binding restSummaryBinding = BindingBuilder
+                .bind(restSummaryQueue)
             .to(exchange)
             .with(RoutingKey.DOCUMENT_SUMMARIZED);
 
-        Queue indexedQueue = new Queue(QueueName.DOCUMENT_INDEXED, true);
-        Binding indexedBinding = BindingBuilder
-                .bind(indexedQueue)
+        Queue restIndexQueue = new Queue(QueueName.REST_DOCUMENT_INDEXED, true);
+        Binding restIndexBinding = BindingBuilder
+                .bind(restIndexQueue)
                 .to(exchange)
                 .with(RoutingKey.DOCUMENT_INDEXED);
 
         return new Declarables(exchange,
-            uploadQueue, uploadBinding,
-            summarizedQueue, summarizedBinding,
-            indexedQueue, indexedBinding);
+                ocrUploadQueue, ocrUploadBinding,
+                restScanQueue, restScanBinding,
+                restSummaryQueue, restSummaryBinding,
+                restIndexQueue, restIndexBinding);
     }
 
     @Bean

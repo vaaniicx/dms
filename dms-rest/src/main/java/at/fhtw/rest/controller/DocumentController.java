@@ -1,21 +1,20 @@
 package at.fhtw.rest.controller;
 
-import at.fhtw.rest.persistence.entity.DocumentEntity;
-import at.fhtw.rest.service.DocumentService;
-import at.fhtw.rest.service.DownloadableDocument;
-import at.fhtw.rest.service.ElasticsearchService;
+import at.fhtw.rest.core.persistence.entity.Document;
+import at.fhtw.rest.core.service.DocumentServiceImpl;
+import at.fhtw.rest.core.service.ElasticsearchService;
+import at.fhtw.rest.core.util.DownloadableDocument;
+import at.fhtw.rest.mapper.document.DocumentMapper;
 import com.openapi.gen.springboot.api.DocumentApi;
-import com.openapi.gen.springboot.dto.DocumentDto;
+import com.openapi.gen.springboot.dto.DocumentResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -27,33 +26,45 @@ import java.util.List;
 @AllArgsConstructor
 public class DocumentController implements DocumentApi {
 
-    private final DocumentService documentService;
+    private final DocumentServiceImpl documentService;
 
     private final ElasticsearchService elasticsearchService;
 
+    private final DocumentMapper documentMapper;
+
+    @Override
+    public ResponseEntity<List<DocumentResponse>> getDocuments() {
+        List<Document> allDocuments = documentService.getAllDocuments();
+        List<DocumentResponse> response = allDocuments.stream().map(documentMapper::mapToResponse).toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public ResponseEntity<DocumentResponse> getDocument(Long id) {
+        Document document = documentService.getDocumentById(id);
+        DocumentResponse response = documentMapper.mapToResponse(document);
+        return ResponseEntity.ok(response);
+    }
+
     @Override
     public ResponseEntity<Void> uploadDocument(MultipartFile file) {
-        DocumentEntity savedDocument = documentService.saveDocument(file);
-
+        Document document = documentService.saveDocument(file);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(savedDocument.getId())
+                .buildAndExpand(document.getId())
                 .toUri();
         return ResponseEntity.created(location).build();
     }
 
     @Override
-    public ResponseEntity<List<DocumentDto>> getDocuments() {
-        return ResponseEntity.ok(documentService.findAll());
-    }
-
-    @Override
-    public ResponseEntity<List<DocumentDto>> searchDocuments(String query, String scope) {
+    public ResponseEntity<List<DocumentResponse>> searchDocuments(String query, String scope) {
         String effectiveScope = scope == null || scope.isBlank() ? "content" : scope.toLowerCase();
 
         if ("name".equals(effectiveScope)) {
-            return ResponseEntity.ok(documentService.searchByFileName(query));
+            List<Document> documents = documentService.searchByFileName(query);
+            List<DocumentResponse> response = documents.stream().map(documentMapper::mapToResponse).toList();
+            return ResponseEntity.ok(response);
         }
 
         var contentIds = elasticsearchService.searchDocumentIds(query);
@@ -61,45 +72,39 @@ public class DocumentController implements DocumentApi {
         if (contentIds.isEmpty()) {
             if ("all".equals(effectiveScope)) {
                 // No content hits, but maybe there are filename matches
-                return ResponseEntity.ok(documentService.searchByFileName(query));
+                List<Document> documents = documentService.searchByFileName(query);
+                List<DocumentResponse> response = documents.stream().map(documentMapper::mapToResponse).toList();
+                return ResponseEntity.ok(response);
             }
             return ResponseEntity.ok(List.of());
         }
 
         if (!"all".equals(effectiveScope)) {
-            List<DocumentDto> contentMatches = documentService.findAll().stream()
-                    .filter(dto -> contentIds.contains(dto.getId()))
+            List<Document> allDocuments = documentService.getAllDocuments();
+            List<DocumentResponse> matchedDocumentsByContent = allDocuments.stream()
+                    .filter(document -> contentIds.contains(document.getId()))
+                    .map(documentMapper::mapToResponse)
                     .toList();
-            return ResponseEntity.ok(contentMatches);
+            return ResponseEntity.ok(matchedDocumentsByContent);
         }
 
         // scope == "all": combine content + filename hits
-        List<DocumentDto> nameMatches = documentService.searchByFileName(query);
-
-        List<Long> nameIds = nameMatches.stream()
-                .map(DocumentDto::getId)
+        List<Document> matchedDocumentsByName = documentService.searchByFileName(query);
+        List<Long> nameIds = matchedDocumentsByName.stream()
+                .map(Document::getId)
                 .toList();
-
-        List<DocumentDto> allDocuments = documentService.findAll();
 
         // Preserve a stable order: by insertedAt or id via the base list
-        List<DocumentDto> combined = allDocuments.stream()
+        List<Document> combined = documentService.getAllDocuments().stream()
                 .filter(dto -> contentIds.contains(dto.getId()) || nameIds.contains(dto.getId()))
                 .toList();
-
-        return ResponseEntity.ok(combined);
-    }
-
-    @Override
-    public ResponseEntity<DocumentDto> getDocumentById(Long id) {
-        return documentService.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Document not found"));
+        List<DocumentResponse> responses = combined.stream().map(documentMapper::mapToResponse).toList();
+        return ResponseEntity.ok(responses);
     }
 
     @Override
     public ResponseEntity<Void> deleteDocument(Long id) {
-        documentService.delete(id);
+        documentService.deleteDocumentById(id);
         return ResponseEntity.noContent().build();
     }
 

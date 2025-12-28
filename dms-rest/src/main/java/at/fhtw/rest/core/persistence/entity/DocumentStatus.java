@@ -1,4 +1,4 @@
-package at.fhtw.rest.persistence.entity;
+package at.fhtw.rest.core.persistence.entity;
 
 public enum DocumentStatus {
     UPLOADED,

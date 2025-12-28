@@ -1,4 +1,4 @@
-package at.fhtw.rest.exception;
+package at.fhtw.rest.core.exception;
 
 public class DocumentStorageException extends RuntimeException {
     public DocumentStorageException(String message, Throwable cause) {
