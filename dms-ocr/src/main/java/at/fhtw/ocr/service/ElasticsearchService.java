@@ -1,5 +1,6 @@
 package at.fhtw.ocr.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ElasticsearchService {
 
+    private final HttpClient httpClient = HttpClient.newHttpClient();
+
     private final ObjectMapper objectMapper;
 
     @Value("${elasticsearch.url:http://localhost:9200}")
@@ -26,44 +29,61 @@ public class ElasticsearchService {
     @Value("${elasticsearch.index:documents}")
     private String indexName;
 
-    private final HttpClient httpClient = HttpClient.newHttpClient();
+    public void indexDocument(long documentId, String fileContent) {
+        String resolvedIndex = getResolvedIndex();
+        URI uri = URI.create(String.format("%s/%s/_doc/%d", elasticsearchUrl, resolvedIndex, documentId));
 
-    public void indexDocument(long documentId, String content) {
+        String body = buildRequestBody(documentId, fileContent);
+        HttpRequest indexRequest = buildIndexRequest(uri, body);
+
+        requestIndexing(documentId, indexRequest);
+
+        log.info("Indexed document {} in Elasticsearch index '{}'", documentId, resolvedIndex);
+    }
+
+    private String buildRequestBody(long documentId, String fileContent) {
+        Map<String, Object> payload = getPayload(documentId, fileContent);
         try {
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("documentId", documentId);
-            payload.put("content", content);
+            return objectMapper.writeValueAsString(payload);
+        } catch (JsonProcessingException e) {
+            // todo: error handling
+            throw new RuntimeException(e);
+        }
+    }
 
-            String body = objectMapper.writeValueAsString(payload);
-
-            String baseUrl = (elasticsearchUrl != null && !elasticsearchUrl.isBlank())
-                ? elasticsearchUrl
-                : "http://localhost:9200";
-            if (baseUrl.endsWith("/")) {
-                baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
-            }
-
-            String resolvedIndex = (indexName != null && !indexName.isBlank()) ? indexName : "documents";
-
-            URI uri = URI.create(String.format("%s/%s/_doc/%d", baseUrl, resolvedIndex, documentId));
-
-            HttpRequest request = HttpRequest.newBuilder(uri)
+    private static HttpRequest buildIndexRequest(URI uri, String body) {
+        return HttpRequest.newBuilder(uri)
                 .header("Content-Type", "application/json")
                 .PUT(HttpRequest.BodyPublishers.ofString(body))
                 .build();
+    }
 
+    private void requestIndexing(long documentId, HttpRequest request) {
+        try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
                 log.error("Failed to index document {} in Elasticsearch. Status: {}, Body: {}",
-                    documentId, response.statusCode(), response.body());
+                        documentId, response.statusCode(), response.body());
                 throw new IllegalStateException("Failed to index document in Elasticsearch");
             }
-
-            log.info("Indexed document {} in Elasticsearch index '{}'", documentId, resolvedIndex);
         } catch (Exception e) {
-            log.error("Error while indexing document {} in Elasticsearch", documentId, e);
-            throw new RuntimeException("Elasticsearch indexing failed", e);
+            // todo: error handling
+            return;
         }
+    }
+
+    private Map<String, Object> getPayload(long documentId, String fileContent) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("documentId", documentId);
+        payload.put("content", fileContent);
+        return payload;
+    }
+
+    private String getResolvedIndex() {
+        if (!(indexName == null || indexName.isBlank())) {
+            return indexName;
+        }
+        return "documents";
     }
 }

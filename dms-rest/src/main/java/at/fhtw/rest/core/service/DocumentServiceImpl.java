@@ -1,7 +1,5 @@
 package at.fhtw.rest.core.service;
 
-import at.fhtw.message.document.DocumentUploadedMessage;
-import at.fhtw.rest.core.exception.DocumentMessagingException;
 import at.fhtw.rest.core.exception.DocumentNotFoundException;
 import at.fhtw.rest.core.persistence.entity.Document;
 import at.fhtw.rest.core.persistence.entity.DocumentFile;
@@ -15,13 +13,10 @@ import at.fhtw.rest.core.util.DownloadableDocument;
 import at.fhtw.rest.message.publisher.MessagePublisher;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tika.Tika;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.UnsupportedMediaTypeStatusException;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -30,8 +25,6 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class DocumentServiceImpl implements DocumentService {
-
-    private static final Tika TIKA = new Tika();
 
     private final DocumentRepository documentRepository;
 
@@ -77,51 +70,31 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public Document saveDocument(MultipartFile file) {
+        ensureFileIsPresent(file);
+        ensureFileIsPdf(file);
+
+        String objectKey = documentStorage.store(file);
+
+        DocumentMetadata metadata = DocumentMetadataExtractor.extract(file);
+        Document document = buildDocument(file, metadata, objectKey);
+
+        Document persistedDocument = documentRepository.save(document);
+
+        messagePublisher.publishDocumentUploaded(persistedDocument.getId(), objectKey);
+
+        return persistedDocument;
+    }
+
+    private void ensureFileIsPresent(MultipartFile file) {
         if (file.isEmpty()) {
             throw new IllegalArgumentException("No file provided");
         }
+    }
 
-        String mimeType;
-        try {
-            mimeType = TIKA.detect(file.getInputStream(), file.getOriginalFilename());
-        } catch (IOException e) {
-            throw new UnsupportedMediaTypeStatusException("Failed to detect MIME type");
+    private void ensureFileIsPdf(MultipartFile file) {
+        if (file.getContentType() == null || !"application/pdf".equals(file.getContentType())) {
+            throw new IllegalArgumentException("Only application/pdf files are supported");
         }
-
-        if (!"application/pdf".equalsIgnoreCase(mimeType)) {
-            throw new UnsupportedMediaTypeStatusException("Expected application/pdf but got " + mimeType);
-        }
-
-        String objectKey = documentStorage.store(file, mimeType.split("/")[1]);
-
-        DocumentMetadata metadata = DocumentMetadataExtractor.extract(file);
-
-        Document document = Document.builder()
-                .title(metadata.getTitle())
-                .author(metadata.getAuthor())
-                .documentFile(DocumentFile.builder()
-                        .objectKey(objectKey)
-                        .name(file.getOriginalFilename())
-                        .type(mimeType)
-                        .pageCount(metadata.getPageCount())
-                        .size(file.getSize())
-                        .creationDate(metadata.getCreationDate())
-                        .modificationDate(metadata.getModificationDate())
-                        .build())
-                .statusHistory(Collections.singletonList(new DocumentStatusHistory(DocumentStatus.UPLOADED)))
-                .build();
-
-        Document savedDocument = documentRepository.save(document);
-
-        // TODO: extract into publisher
-        DocumentUploadedMessage documentUploadedMessage = new DocumentUploadedMessage(savedDocument.getId(), objectKey);
-        try {
-            messagePublisher.publishDocumentUploaded(documentUploadedMessage);
-        } catch (DocumentMessagingException e) {
-            throw new DocumentMessagingException("Failed to enqueue document " + savedDocument.getId(), e);
-        }
-
-        return savedDocument;
     }
 
     public List<Document> searchByFileName(String query) {
@@ -140,5 +113,22 @@ public class DocumentServiceImpl implements DocumentService {
         return new DownloadableDocument(new InputStreamResource(inputStream),
                 document.getDocumentFile().getName() != null ? document.getDocumentFile().getName() : "document",
                 document.getDocumentFile().getType() != null ? document.getDocumentFile().getType() : "application/octet-stream");
+    }
+
+    private static Document buildDocument(MultipartFile file, DocumentMetadata metadata, String objectKey) {
+        return Document.builder()
+                .title(metadata.getTitle())
+                .author(metadata.getAuthor())
+                .documentFile(DocumentFile.builder()
+                        .objectKey(objectKey)
+                        .name(file.getOriginalFilename())
+                        .type(file.getContentType())
+                        .pageCount(metadata.getPageCount())
+                        .size(file.getSize())
+                        .creationDate(metadata.getCreationDate())
+                        .modificationDate(metadata.getModificationDate())
+                        .build())
+                .statusHistory(Collections.singletonList(new DocumentStatusHistory(DocumentStatus.UPLOADED)))
+                .build();
     }
 }

@@ -16,17 +16,19 @@ public class MessagePublisher {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public void publishDocumentScanned(final DocumentScannedMessage message) {
+    public void publishDocumentScanned(Long documentId, String scannedText) {
+        DocumentScannedMessage documentScannedMessage = new DocumentScannedMessage(documentId, scannedText);
         try {
-            rabbitTemplate.convertAndSend(Exchange.DOCUMENT_EXCHANGE, RoutingKey.DOCUMENT_SCANNED, message);
+            rabbitTemplate.convertAndSend(Exchange.DOCUMENT_EXCHANGE, RoutingKey.DOCUMENT_SCANNED, documentScannedMessage);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void publishDocumentIndexed(final DocumentIndexedMessage message) {
+    public void publishDocumentIndexed(Long documentId) {
+        DocumentIndexedMessage documentIndexedMessage = new DocumentIndexedMessage(documentId);
         try {
-            rabbitTemplate.convertAndSend(Exchange.DOCUMENT_EXCHANGE, RoutingKey.DOCUMENT_INDEXED, message);
+            rabbitTemplate.convertAndSend(Exchange.DOCUMENT_EXCHANGE, RoutingKey.DOCUMENT_INDEXED, documentIndexedMessage);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
