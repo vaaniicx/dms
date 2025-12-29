@@ -57,6 +57,7 @@ public class DocumentController implements DocumentApi {
         return ResponseEntity.created(location).build();
     }
 
+    // todo: refactor this and/or move it into service
     @Override
     public ResponseEntity<List<DocumentResponse>> searchDocuments(String query, String scope) {
         String effectiveScope = scope == null || scope.isBlank() ? "content" : scope.toLowerCase();

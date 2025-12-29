@@ -16,11 +16,12 @@ public class MessagePublisher {
 
     private final RabbitTemplate template;
 
-    public void publishDocumentUploaded(final DocumentUploadedMessage message) {
+    public void publishDocumentUploaded(Long documentId, String objectKey) {
+        DocumentUploadedMessage documentUploadedMessage = new DocumentUploadedMessage(documentId, objectKey);
         try {
-            template.convertAndSend(Exchange.DOCUMENT_EXCHANGE, RoutingKey.DOCUMENT_UPLOADED, message);
-        } catch (Exception e) {
-            throw new DocumentMessagingException("Could not publish message.", e);
+            template.convertAndSend(Exchange.DOCUMENT_EXCHANGE, RoutingKey.DOCUMENT_UPLOADED, documentUploadedMessage);
+        } catch (DocumentMessagingException e) {
+            throw new DocumentMessagingException("Failed to enqueue document " + documentId, e);
         }
     }
 }

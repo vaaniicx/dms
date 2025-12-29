@@ -19,7 +19,10 @@ public class DocumentStorage {
 
     public InputStream load(String objectKey) {
         try {
-            return client.getObject(GetObjectArgs.builder().bucket(properties.bucket()).object(objectKey).build());
+            return client.getObject(GetObjectArgs.builder()
+                    .bucket(properties.bucket())
+                    .object(objectKey)
+                    .build());
         } catch (Exception ex) {
             log.error("Failed to load object '{}' from bucket '{}'", objectKey, properties.bucket(), ex);
             throw new DocumentStorageException("Failed to load object from MinIO", ex);

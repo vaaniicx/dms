@@ -1,8 +1,6 @@
 package at.fhtw.ocr.message.consumer;
 
 import at.fhtw.message.QueueName;
-import at.fhtw.message.document.DocumentIndexedMessage;
-import at.fhtw.message.document.DocumentScannedMessage;
 import at.fhtw.message.document.DocumentUploadedMessage;
 import at.fhtw.ocr.message.publisher.MessagePublisher;
 import at.fhtw.ocr.service.ElasticsearchService;
@@ -25,26 +23,10 @@ public class MessageConsumer {
 
     @RabbitListener(queues = QueueName.OCR_DOCUMENT_UPLOADED)
     public void consumeDocumentUploaded(final DocumentUploadedMessage consumedMessage) {
-        log.info("Consuming DocumentUploadedMessage");
-        if (consumedMessage.objectKey() == null) {
-            throw new IllegalStateException("Received uploaded document which has no object key.");
-        }
+        String scannedText = ocrService.scanDocument(consumedMessage.objectKey());
+        messagePublisher.publishDocumentScanned(consumedMessage.documentId(), scannedText);
 
-        String extractedText = ocrService.extractText(consumedMessage.objectKey());
-        log.info("OCR output text: {}", extractedText);
-
-        elasticsearchService.indexDocument(consumedMessage.documentId(), extractedText);
-
-        DocumentIndexedMessage documentIndexedMessage =
-            new DocumentIndexedMessage(consumedMessage.documentId());
-        DocumentScannedMessage documentScannedMessage =
-                new DocumentScannedMessage(consumedMessage.documentId(), extractedText);
-
-        try {
-            messagePublisher.publishDocumentIndexed(documentIndexedMessage);
-            messagePublisher.publishDocumentScanned(documentScannedMessage);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        elasticsearchService.indexDocument(consumedMessage.documentId(), scannedText);
+        messagePublisher.publishDocumentIndexed(consumedMessage.documentId());
     }
 }

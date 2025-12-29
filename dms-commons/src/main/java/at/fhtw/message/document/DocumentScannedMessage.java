@@ -1,4 +1,4 @@
 package at.fhtw.message.document;
 
-public record DocumentScannedMessage(long documentId, String summary) {
+public record DocumentScannedMessage(long documentId, String scannedText) {
 }
