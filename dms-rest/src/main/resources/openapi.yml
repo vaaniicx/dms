@@ -173,7 +173,6 @@ components:
         status:
           type: string
           example: "Alive."
-
     MultipartFile:
       type: object
       required: [ file ]
@@ -181,7 +180,6 @@ components:
         file:
           type: string
           format: binary
-
     DocumentResponse:
       type: object
       properties:
@@ -199,7 +197,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DocumentStatusHistoryResponse"
-
     DocumentFileResponse:
       type: object
       properties:
@@ -219,7 +216,6 @@ components:
         modificationDate:
           type: string
           format: date-time
-
     DocumentStatusHistoryResponse:
       type: object
       properties:
@@ -228,57 +224,6 @@ components:
         changeDate:
           type: string
           format: date-time
-
-    DocumentDto:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        objectKey:
-          type: string
-        fileName:
-          type: string
-        fileSize:
-          type: number
-          format: double
-        fileSizeUnit:
-          type: string
-        fileType:
-          type: string
-        fileExtension:
-          type: string
-        docPageCount:
-          type: integer
-          format: int64
-        docTitle:
-          type: string
-        docAuthor:
-          type: string
-        uploaded:
-          type: boolean
-        scanned:
-          type: boolean
-        summarized:
-          type: boolean
-        indexed:
-          type: boolean
-        docCreatedAt:
-          type: string
-          format: date-time
-        docUpdatedAt:
-          type: string
-          format: date-time
-        summary:
-          type: string
-          nullable: true
-        insertedAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-
     ErrorDto:
       type: object
       properties:
