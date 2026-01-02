@@ -9,4 +9,6 @@ public class RoutingKey {
     public static final String DOCUMENT_SUMMARIZED = "document.summarized";
 
     public static final String DOCUMENT_INDEXED = "document.indexed";
+
+    public static final String DOCUMENT_STATISTICS = "document.statistics";
 }

@@ -33,4 +33,17 @@ public class MessageConsumer {
         documentService.updateSummary(consumedMessage.documentId(), consumedMessage.summary());
         documentService.updateDocumentStatus(consumedMessage.documentId(), DocumentStatus.SUMMARIZED);
     }
+
+    @RabbitListener(queues = QueueName.REST_DOCUMENT_STATISTICS)
+    public void consumeDocumentStatistics(final DocumentStatisticsMessage consumedMessage) {
+        log.info("Received statistics for document {}: accessCount={}, accessor={}",
+                consumedMessage.documentId(), consumedMessage.accessCount(), consumedMessage.accessor());
+
+        documentService.updateDocumentAccessHistory(
+                consumedMessage.documentId(),
+                consumedMessage.accessDate(),
+                consumedMessage.accessCount(),
+                consumedMessage.accessor()
+        );
+    }
 }
