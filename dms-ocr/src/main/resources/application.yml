@@ -3,10 +3,10 @@ spring:
   application:
     name: ocr
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
 
 logging:
   level:
@@ -15,14 +15,14 @@ logging:
     org.zalando.logbook: TRACE
 
 minio:
-  endpoint: http://localhost:9000
-  access-key: minioadmin
-  secret-key: minioadmin
-  bucket: dms
+  endpoint: ${MINIO_ENDPOINT}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  bucket: ${MINIO_BUCKET}
 
 elasticsearch:
-  url: http://localhost:9200
-  index: documents
+  url: ${ELASTICSEARCH_URL}
+  index: ${ELASTICSEARCH_INDEX}
 
 server:
   port: 8081

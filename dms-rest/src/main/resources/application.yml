@@ -2,22 +2,22 @@
 spring:
   servlet:
     multipart:
-      max-file-size: 64MB
-      max-request-size: 256MB
+      max-file-size: ${SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE}
+      max-request-size: ${SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE}
   rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    host: ${SPRING_RABBITMQ_HOST}
+    port: ${SPRING_RABBITMQ_PORT}
+    username: ${SPRING_RABBITMQ_USERNAME}
+    password: ${SPRING_RABBITMQ_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     open-in-view: false
   datasource:
-    url: jdbc:postgresql://localhost:5432/dms
-    username: postgres
-    password: postgres
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
 
 logging:
   level:
