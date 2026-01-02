@@ -5,7 +5,7 @@ import com.openapi.gen.springboot.dto.DocumentResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {DocumentFileMapper.class, DocumentStatusHistoryMapper.class})
+@Mapper(componentModel = "spring", uses = {DocumentFileMapper.class, DocumentStatusHistoryMapper.class, DocumentAccessHistoryMapper.class})
 public interface DocumentMapper {
 
     @Mapping(target = "file", source = "documentFile")
