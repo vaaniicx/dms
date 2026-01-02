@@ -45,11 +45,18 @@ public class RabbitMqConfig {
                 .to(exchange)
                 .with(RoutingKey.DOCUMENT_INDEXED);
 
+        Queue restStatisticsQueue = new Queue(QueueName.REST_DOCUMENT_STATISTICS, true);
+        Binding restStatisticsBinding = BindingBuilder
+                .bind(restStatisticsQueue)
+                .to(exchange)
+                .with(RoutingKey.DOCUMENT_STATISTICS);
+
         return new Declarables(exchange,
                 ocrUploadQueue, ocrUploadBinding,
                 restScanQueue, restScanBinding,
                 restSummaryQueue, restSummaryBinding,
-                restIndexQueue, restIndexBinding);
+                restIndexQueue, restIndexBinding,
+                restStatisticsQueue, restStatisticsBinding);
     }
 
     @Bean

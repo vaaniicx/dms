@@ -20,5 +20,7 @@ public interface DocumentService {
 
     void updateDocumentStatus(Long id, DocumentStatus status);
 
+    void updateDocumentAccessHistory(Long id, LocalDateTime accessDate, int accessCount, String accessor);
+
     void deleteDocumentById(Long id);
 }

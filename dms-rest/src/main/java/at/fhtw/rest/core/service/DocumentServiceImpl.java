@@ -2,6 +2,7 @@ package at.fhtw.rest.core.service;
 
 import at.fhtw.rest.core.exception.DocumentNotFoundException;
 import at.fhtw.rest.core.persistence.entity.Document;
+import at.fhtw.rest.core.persistence.entity.DocumentAccessHistory;
 import at.fhtw.rest.core.persistence.entity.DocumentFile;
 import at.fhtw.rest.core.persistence.entity.DocumentStatus;
 import at.fhtw.rest.core.persistence.entity.DocumentStatusHistory;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,6 +62,25 @@ public class DocumentServiceImpl implements DocumentService {
         Document document = getDocumentById(id);
         document.getStatusHistory().add(new DocumentStatusHistory(status));
         documentRepository.save(document);
+    }
+
+    @Override
+    public void updateDocumentAccessHistory(Long id, LocalDateTime accessDate, int accessCount, String accessor) {
+        log.info("Updating access history for document {}: accessCount={}, accessor={}", id, accessCount, accessor);
+
+        Document document = getDocumentById(id);
+
+        DocumentAccessHistory accessHistory = DocumentAccessHistory.builder()
+                .accessDate(accessDate)
+                .accessCount(accessCount)
+                .accessor(accessor)
+                .documentId(id)
+                .build();
+
+        document.getAccessHistory().add(accessHistory);
+        documentRepository.save(document);
+
+        log.debug("Successfully updated access history for document {}", id);
     }
 
     @Override
