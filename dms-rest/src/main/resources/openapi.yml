@@ -197,11 +197,13 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/DocumentStatusHistoryResponse"
+        accessHistory:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentAccessHistoryResponse"
     DocumentFileResponse:
       type: object
       properties:
-        objectKey:
-          type: string
         name:
           type: string
         type:
@@ -224,16 +226,25 @@ components:
         changeDate:
           type: string
           format: date-time
+    DocumentAccessHistoryResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        accessDate:
+          type: string
+          format: date-time
+        accessCount:
+          type: integer
+        accessor:
+          type: string
     ErrorDto:
       type: object
       properties:
         timestamp:
           type: string
           format: date-time
-        status:
-          type: integer
-          format: int32
-        error:
-          type: string
         message:
+          type: string
+        details:
           type: string
