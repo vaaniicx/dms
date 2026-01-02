@@ -1,10 +1,13 @@
 package at.fhtw.rest.message.consumer;
 
 import at.fhtw.message.QueueName;
+import at.fhtw.message.document.DocumentAccessMessage;
 import at.fhtw.message.document.DocumentIndexedMessage;
 import at.fhtw.message.document.DocumentScannedMessage;
 import at.fhtw.message.document.DocumentSummarizedMessage;
+import at.fhtw.rest.core.persistence.entity.DocumentAccessHistory;
 import at.fhtw.rest.core.persistence.entity.DocumentStatus;
+import at.fhtw.rest.core.persistence.entity.DocumentStatusHistory;
 import at.fhtw.rest.core.service.DocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,30 +23,36 @@ public class MessageConsumer {
 
     @RabbitListener(queues = QueueName.REST_DOCUMENT_SCANNED)
     public void consumeDocumentScanned(final DocumentScannedMessage consumedMessage) {
-        documentService.updateDocumentStatus(consumedMessage.documentId(), DocumentStatus.SCANNED);
+        DocumentStatusHistory statusHistory = new DocumentStatusHistory(DocumentStatus.SCANNED);
+        documentService.updateDocumentStatus(consumedMessage.documentId(), statusHistory);
     }
 
     @RabbitListener(queues = QueueName.REST_DOCUMENT_INDEXED)
     public void consumeDocumentIndexed(final DocumentIndexedMessage consumedMessage) {
-        documentService.updateDocumentStatus(consumedMessage.documentId(), DocumentStatus.INDEXED);
+        DocumentStatusHistory statusHistory = new DocumentStatusHistory(DocumentStatus.INDEXED);
+        documentService.updateDocumentStatus(consumedMessage.documentId(), statusHistory);
     }
 
     @RabbitListener(queues = QueueName.REST_DOCUMENT_SUMMARIZED)
     public void consumeDocumentSummarized(final DocumentSummarizedMessage consumedMessage) {
         documentService.updateSummary(consumedMessage.documentId(), consumedMessage.summary());
-        documentService.updateDocumentStatus(consumedMessage.documentId(), DocumentStatus.SUMMARIZED);
+
+        DocumentStatusHistory statusHistory = new DocumentStatusHistory(DocumentStatus.SUMMARIZED);
+        documentService.updateDocumentStatus(consumedMessage.documentId(), statusHistory);
     }
 
     @RabbitListener(queues = QueueName.REST_DOCUMENT_STATISTICS)
-    public void consumeDocumentStatistics(final DocumentStatisticsMessage consumedMessage) {
-        log.info("Received statistics for document {}: accessCount={}, accessor={}",
-                consumedMessage.documentId(), consumedMessage.accessCount(), consumedMessage.accessor());
+    public void consumeDocumentStatistics(final DocumentAccessMessage consumedMessage) {
+        DocumentAccessHistory accessHistory = buildDocumentAccessHistory(consumedMessage);
+        documentService.updateDocumentAccessHistory(consumedMessage.documentId(), accessHistory);
+    }
 
-        documentService.updateDocumentAccessHistory(
-                consumedMessage.documentId(),
-                consumedMessage.accessDate(),
-                consumedMessage.accessCount(),
-                consumedMessage.accessor()
-        );
+    private static DocumentAccessHistory buildDocumentAccessHistory(DocumentAccessMessage consumedMessage) {
+        return DocumentAccessHistory.builder()
+                .documentId(consumedMessage.documentId())
+                .accessor(consumedMessage.accessor())
+                .accessDate(consumedMessage.accessDate())
+                .accessCount(consumedMessage.accessCount())
+                .build();
     }
 }

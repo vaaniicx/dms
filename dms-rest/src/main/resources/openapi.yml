@@ -204,6 +204,8 @@ components:
     DocumentFileResponse:
       type: object
       properties:
+        objectKey:
+          type: string
         name:
           type: string
         type:
@@ -231,20 +233,23 @@ components:
       properties:
         id:
           type: integer
-        accessDate:
+        accessor:
+          type: string
+        accessTime:
           type: string
           format: date-time
         accessCount:
           type: integer
-        accessor:
-          type: string
     ErrorDto:
       type: object
       properties:
         timestamp:
           type: string
           format: date-time
-        message:
+        status:
+          type: integer
+          format: int32
+        error:
           type: string
-        details:
+        message:
           type: string
