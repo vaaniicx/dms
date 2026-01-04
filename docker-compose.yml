@@ -64,6 +64,8 @@ services:
         condition: service_healthy
       db:
         condition: service_healthy
+    volumes:
+      - access-logs:/xml
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
@@ -199,3 +201,4 @@ services:
 
 volumes:
   ollama-data:
+  access-logs:

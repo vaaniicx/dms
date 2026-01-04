@@ -1,4 +1,4 @@
-package at.fhtw.rest.config;
+package at.fhtw.ocr.config;
 
 import at.fhtw.message.Exchange;
 import at.fhtw.message.QueueName;
@@ -21,9 +21,9 @@ public class RabbitMqConfig {
     public Declarables declarables() {
         DirectExchange exchange = new DirectExchange(Exchange.DOCUMENT_EXCHANGE, true, false);
 
-        Queue ocrUploadQueue = new Queue(QueueName.OCR_DOCUMENT_UPLOADED, true);
-        Binding ocrUploadBinding = BindingBuilder
-                .bind(ocrUploadQueue)
+        Queue uploadQueue = new Queue(QueueName.OCR_DOCUMENT_UPLOADED, true);
+        Binding uploadBinding = BindingBuilder
+                .bind(uploadQueue)
                 .to(exchange)
                 .with(RoutingKey.DOCUMENT_UPLOADED);
 
@@ -33,30 +33,23 @@ public class RabbitMqConfig {
                 .to(exchange)
                 .with(RoutingKey.DOCUMENT_SCANNED);
 
-        Queue restSummaryQueue = new Queue(QueueName.REST_DOCUMENT_SUMMARIZED, true);
-        Binding restSummaryBinding = BindingBuilder
-                .bind(restSummaryQueue)
+        Queue genAiScanQueue = new Queue(QueueName.GENAI_DOCUMENT_SCANNED, true);
+        Binding genAiScanBinding = BindingBuilder
+                .bind(genAiScanQueue)
                 .to(exchange)
-                .with(RoutingKey.DOCUMENT_SUMMARIZED);
+                .with(RoutingKey.DOCUMENT_SCANNED);
 
-        Queue restIndexQueue = new Queue(QueueName.REST_DOCUMENT_INDEXED, true);
-        Binding restIndexBinding = BindingBuilder
-                .bind(restIndexQueue)
+        Queue indexQueue = new Queue(QueueName.REST_DOCUMENT_INDEXED, true);
+        Binding indexBinding = BindingBuilder
+                .bind(indexQueue)
                 .to(exchange)
                 .with(RoutingKey.DOCUMENT_INDEXED);
 
-        Queue restAccessQueue = new Queue(QueueName.REST_DOCUMENT_ACCESSED, true);
-        Binding restAccessBinding = BindingBuilder
-                .bind(restAccessQueue)
-                .to(exchange)
-                .with(RoutingKey.DOCUMENT_ACCESSED);
-
         return new Declarables(exchange,
-                ocrUploadQueue, ocrUploadBinding,
+                uploadQueue, uploadBinding,
                 restScanQueue, restScanBinding,
-                restSummaryQueue, restSummaryBinding,
-                restIndexQueue, restIndexBinding,
-                restAccessQueue, restAccessBinding);
+                genAiScanQueue, genAiScanBinding,
+                indexQueue, indexBinding);
     }
 
     @Bean

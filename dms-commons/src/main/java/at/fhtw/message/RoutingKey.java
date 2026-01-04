@@ -10,5 +10,5 @@ public class RoutingKey {
 
     public static final String DOCUMENT_INDEXED = "document.indexed";
 
-    public static final String DOCUMENT_STATISTICS = "document.statistics";
+    public static final String DOCUMENT_ACCESSED = "document.accessed";
 }

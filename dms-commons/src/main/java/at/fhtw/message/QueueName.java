@@ -8,7 +8,7 @@ public class QueueName {
 
     public static final String REST_DOCUMENT_SUMMARIZED = "rest.document.summarized.queue";
 
-    public static final String REST_DOCUMENT_STATISTICS = "rest.document.statistics.queue";
+    public static final String REST_DOCUMENT_ACCESSED = "rest.document.accessed.queue";
 
     public static final String OCR_DOCUMENT_UPLOADED = "ocr.document.uploaded.queue";
 

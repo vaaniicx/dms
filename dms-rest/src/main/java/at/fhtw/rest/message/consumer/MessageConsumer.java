@@ -1,10 +1,11 @@
 package at.fhtw.rest.message.consumer;
 
 import at.fhtw.message.QueueName;
-import at.fhtw.message.document.DocumentAccessMessage;
+import at.fhtw.message.document.DocumentAccessedMessage;
 import at.fhtw.message.document.DocumentIndexedMessage;
 import at.fhtw.message.document.DocumentScannedMessage;
 import at.fhtw.message.document.DocumentSummarizedMessage;
+import at.fhtw.rest.core.exception.DocumentNotFoundException;
 import at.fhtw.rest.core.persistence.entity.DocumentAccessHistory;
 import at.fhtw.rest.core.persistence.entity.DocumentStatus;
 import at.fhtw.rest.core.persistence.entity.DocumentStatusHistory;
@@ -21,16 +22,25 @@ public class MessageConsumer {
 
     private final DocumentService documentService;
 
+    private static DocumentAccessHistory buildDocumentAccessHistory(DocumentAccessedMessage consumedMessage) {
+        return DocumentAccessHistory.builder()
+                .documentId(consumedMessage.getDocumentId())
+                .accessor(consumedMessage.getAccessor())
+                .accessDate(consumedMessage.getAccessDate())
+                .accessCount(consumedMessage.getAccessCount())
+                .build();
+    }
+
     @RabbitListener(queues = QueueName.REST_DOCUMENT_SCANNED)
     public void consumeDocumentScanned(final DocumentScannedMessage consumedMessage) {
         DocumentStatusHistory statusHistory = new DocumentStatusHistory(DocumentStatus.SCANNED);
-        documentService.updateDocumentStatus(consumedMessage.documentId(), statusHistory);
+        updateDocumentStatus(consumedMessage.documentId(), statusHistory);
     }
 
     @RabbitListener(queues = QueueName.REST_DOCUMENT_INDEXED)
     public void consumeDocumentIndexed(final DocumentIndexedMessage consumedMessage) {
         DocumentStatusHistory statusHistory = new DocumentStatusHistory(DocumentStatus.INDEXED);
-        documentService.updateDocumentStatus(consumedMessage.documentId(), statusHistory);
+        updateDocumentStatus(consumedMessage.documentId(), statusHistory);
     }
 
     @RabbitListener(queues = QueueName.REST_DOCUMENT_SUMMARIZED)
@@ -38,21 +48,26 @@ public class MessageConsumer {
         documentService.updateSummary(consumedMessage.documentId(), consumedMessage.summary());
 
         DocumentStatusHistory statusHistory = new DocumentStatusHistory(DocumentStatus.SUMMARIZED);
-        documentService.updateDocumentStatus(consumedMessage.documentId(), statusHistory);
+        updateDocumentStatus(consumedMessage.documentId(), statusHistory);
     }
 
-    @RabbitListener(queues = QueueName.REST_DOCUMENT_STATISTICS)
-    public void consumeDocumentStatistics(final DocumentAccessMessage consumedMessage) {
+    @RabbitListener(queues = QueueName.REST_DOCUMENT_ACCESSED)
+    public void consumeDocumentAccessed(final DocumentAccessedMessage consumedMessage) {
+        log.info("Received a document accessed message");
         DocumentAccessHistory accessHistory = buildDocumentAccessHistory(consumedMessage);
-        documentService.updateDocumentAccessHistory(consumedMessage.documentId(), accessHistory);
+        try {
+            documentService.updateDocumentAccessHistory(consumedMessage.getDocumentId(), accessHistory);
+        } catch (DocumentNotFoundException e) {
+            log.error("Could not update access history for document with id {}: {}",
+                    consumedMessage.getDocumentId(), e.getMessage());
+        }
     }
 
-    private static DocumentAccessHistory buildDocumentAccessHistory(DocumentAccessMessage consumedMessage) {
-        return DocumentAccessHistory.builder()
-                .documentId(consumedMessage.documentId())
-                .accessor(consumedMessage.accessor())
-                .accessDate(consumedMessage.accessDate())
-                .accessCount(consumedMessage.accessCount())
-                .build();
+    private void updateDocumentStatus(Long documentId, DocumentStatusHistory statusHistory) {
+        try {
+            documentService.updateDocumentStatus(documentId, statusHistory);
+        } catch (DocumentNotFoundException e) {
+            log.error("Could not update status for document with id {}: {}", documentId, e.getMessage());
+        }
     }
 }

@@ -13,7 +13,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "document_access_history")
+@Table(
+        name = "document_access_history",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"document_id", "accessor", "access_date"})
+        })
 public class DocumentAccessHistory {
 
     @Id
