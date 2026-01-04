@@ -1,0 +1,5 @@
+batch:
+  access:
+    logs:
+      directory: /xml
+      pattern: ^\d{8}-access-log\.xml$

@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Configuration;
 
 @EnableRabbit
 @Configuration
-public class RabbitMQConfig {
+public class RabbitMqConfig {
 
     @Bean
     public Declarables declarables() {

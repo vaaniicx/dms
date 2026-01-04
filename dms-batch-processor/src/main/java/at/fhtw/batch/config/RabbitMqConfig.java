@@ -1,4 +1,4 @@
-package at.fhtw.ocr.config;
+package at.fhtw.batch.config;
 
 import at.fhtw.message.Exchange;
 import at.fhtw.message.QueueName;
@@ -15,41 +15,19 @@ import org.springframework.context.annotation.Configuration;
 
 @EnableRabbit
 @Configuration
-public class RabbitMQConfig {
+public class RabbitMqConfig {
 
     @Bean
     public Declarables declarables() {
         DirectExchange exchange = new DirectExchange(Exchange.DOCUMENT_EXCHANGE, true, false);
 
-        Queue uploadQueue = new Queue(QueueName.OCR_DOCUMENT_UPLOADED, true);
-        Binding uploadBinding = BindingBuilder
-                .bind(uploadQueue)
+        Queue restAccessQueue = new Queue(QueueName.REST_DOCUMENT_ACCESSED, true);
+        Binding restAccessBinding = BindingBuilder
+                .bind(restAccessQueue)
                 .to(exchange)
-                .with(RoutingKey.DOCUMENT_UPLOADED);
+                .with(RoutingKey.DOCUMENT_ACCESSED);
 
-        Queue restScanQueue = new Queue(QueueName.REST_DOCUMENT_SCANNED, true);
-        Binding restScanBinding = BindingBuilder
-                .bind(restScanQueue)
-                .to(exchange)
-                .with(RoutingKey.DOCUMENT_SCANNED);
-
-        Queue genAiScanQueue = new Queue(QueueName.GENAI_DOCUMENT_SCANNED, true);
-        Binding genAiScanBinding = BindingBuilder
-                .bind(genAiScanQueue)
-                .to(exchange)
-                .with(RoutingKey.DOCUMENT_SCANNED);
-
-        Queue indexQueue = new Queue(QueueName.REST_DOCUMENT_INDEXED, true);
-        Binding indexBinding = BindingBuilder
-                .bind(indexQueue)
-                .to(exchange)
-                .with(RoutingKey.DOCUMENT_INDEXED);
-
-        return new Declarables(exchange,
-                uploadQueue, uploadBinding,
-                restScanQueue, restScanBinding,
-                genAiScanQueue, genAiScanBinding,
-                indexQueue, indexBinding);
+        return new Declarables(exchange, restAccessQueue, restAccessBinding);
     }
 
     @Bean

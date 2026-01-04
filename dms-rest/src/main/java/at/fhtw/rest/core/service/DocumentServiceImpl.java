@@ -53,14 +53,16 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public void updateDocumentStatus(Long id, DocumentStatusHistory statusHistory) {
+    public void updateDocumentStatus(Long id, DocumentStatusHistory statusHistory)
+            throws DocumentNotFoundException {
         Document document = getDocumentById(id);
         document.getStatusHistory().add(statusHistory);
         documentRepository.save(document);
     }
 
     @Override
-    public void updateDocumentAccessHistory(Long id, DocumentAccessHistory accessHistory) {
+    public void updateDocumentAccessHistory(Long id, DocumentAccessHistory accessHistory)
+            throws DocumentNotFoundException {
         Document document = getDocumentById(id);
         document.getAccessHistory().add(accessHistory);
         documentRepository.save(document);
