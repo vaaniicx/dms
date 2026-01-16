@@ -35,8 +35,13 @@ public class GlobalExceptionHandler {
         return buildResponseBody(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
     }
 
-    @ExceptionHandler({Exception.class, DocumentStorageException.class})
+    @ExceptionHandler(DocumentStorageException.class)
     public ResponseEntity<ErrorDto> handleDocumentStorage(DocumentStorageException ex) {
+        return buildResponseBody(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorDto> handleUnexpected(Exception ex) {
         return buildResponseBody(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
     }
 

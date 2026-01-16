@@ -45,6 +45,9 @@ public final class DocumentMetadataExtractor {
     }
 
     private static LocalDateTime getLocalDateTimeOfCalendar(Calendar calendar) {
+        if (calendar == null) {
+            return null;
+        }
         return LocalDateTime.ofInstant(calendar.toInstant(), calendar.getTimeZone().toZoneId());
     }
 }
