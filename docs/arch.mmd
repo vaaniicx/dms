@@ -1,0 +1,68 @@
+%%{init: { 'themeVariables': { 'fontSize':'16px', 'fontFamily':'monospace' } }}%%
+graph TD
+    classDef serviceStyle fill:#66D9EF22,stroke:#66D9EF,stroke-width:2px,color:#F8F8F2
+    classDef uiStyle fill:#A6E22E22,stroke:#A6E22E,stroke-width:2px,color:#F8F8F2
+    classDef dataStyle fill:#FD971F22,stroke:#FD971F,stroke-width:2px,color:#F8F8F2
+    classDef brokerStyle fill:#F9267222,stroke:#F92672,stroke-width:2px,color:#F8F8F2
+    classDef searchStyle fill:#AE81FF22,stroke:#AE81FF,stroke-width:2px,color:#F8F8F2
+    classDef toolStyle fill:#E6DB7422,stroke:#E6DB74,stroke-width:2px,color:#F8F8F2
+    classDef volumeStyle fill:#75715E33,stroke:#75715E,stroke-width:2px,color:#F8F8F2
+    classDef actorStyle fill:#272822,stroke:#66D9EF,stroke-width:2px,color:#F8F8F2
+    classDef subgraphStyle fill:#272822,stroke:#75715E,stroke-width:1px,color:#F8F8F2
+
+    rest["Spring REST API<br/>:8080"]
+    ocr["Spring OCR<br/>worker"]
+    batch["Batch Processor<br/>worker"]
+    genai["Gen-AI Service<br/>:4040"]
+
+    ui["Nginx 1.27 + React 19<br/>:80"]
+
+    db[(PostgreSQL 15<br/>:5432)]
+    rmq["RabbitMQ 4 (Mgmt)<br/>:5672 / :15672"]
+    minio[(MinIO 2025-09-07<br/>:9000 / :9001)]
+    adminer["Adminer 5.4<br/>:9090"]
+    es["Elasticsearch 8.15<br/>:9200 / :9300"]
+    kibana["Kibana 8.15<br/>:5601"]
+    ollama["Ollama<br/>:11434"]
+
+    access_logs[(access-logs)]
+    ollama_data[(ollama-data)]
+
+
+    browser -->|HTTP| ui
+    devbrowser -->|HTTP| adminer
+    devbrowser -->|HTTP| rmq
+    devbrowser -->|HTTP| minio
+    devbrowser -->|HTTP| kibana
+    devbrowser -->|HTTP| es
+    devbrowser -->|HTTP| ollama
+
+    ui -->|Proxy /api| rest
+    adminer -->|JDBC| db
+    kibana -->|HTTP| es
+
+    rest -->|JDBC| db
+    rest -->|AMQP| rmq
+    rest -->|S3 API| minio
+    rest -->|HTTP| es
+
+    ocr -->|AMQP| rmq
+    ocr -->|S3 API| minio
+    ocr -->|HTTP| es
+
+    batch -->|JDBC| db
+    batch -->|AMQP| rmq
+    batch --- access_logs
+
+    genai -->|AMQP| rmq
+
+    ollama --- ollama_data
+
+    class rest,ocr,batch,genai serviceStyle
+    class ui uiStyle
+    class db,minio dataStyle
+    class rmq brokerStyle
+    class es searchStyle
+    class adminer,kibana,ollama toolStyle
+    class access_logs,ollama_data volumeStyle
+    class user,dev,browser,devbrowser actorStyle
