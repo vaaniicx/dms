@@ -10,4 +10,3 @@ public interface DocumentAccessHistoryMapper {
 
     DocumentAccessHistoryResponse mapToResponse(DocumentAccessHistory documentAccessHistory);
 }
-

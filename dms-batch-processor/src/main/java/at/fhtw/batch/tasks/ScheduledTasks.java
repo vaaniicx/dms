@@ -32,13 +32,6 @@ public class ScheduledTasks {
     @Value("${batch.access.logs.pattern:test}")
     private Pattern accessLogsFilePattern;
 
-    private static List<FullAccessLogReport> getFullAccessLogReports(List<Path> accessLogPaths) {
-        return accessLogPaths
-                .stream()
-                .map(path -> XmlReader.unmarshal(FullAccessLogReport.class, path))
-                .toList();
-    }
-
     @Scheduled(cron = "0 */1 * * * *")
     public void processAccessLogs() {
         log.info("Processing access logs");
@@ -68,6 +61,13 @@ public class ScheduledTasks {
         return accessLogsFilePaths
                 .filter(Files::isRegularFile)
                 .filter(path -> accessLogsFilePattern.matcher(path.getFileName().toString()).matches())
+                .toList();
+    }
+
+    private List<FullAccessLogReport> getFullAccessLogReports(List<Path> accessLogPaths) {
+        return accessLogPaths
+                .stream()
+                .map(path -> XmlReader.unmarshal(FullAccessLogReport.class, path))
                 .toList();
     }
 

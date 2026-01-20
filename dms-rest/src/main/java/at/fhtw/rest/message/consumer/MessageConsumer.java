@@ -22,15 +22,6 @@ public class MessageConsumer {
 
     private final DocumentService documentService;
 
-    private static DocumentAccessHistory buildDocumentAccessHistory(DocumentAccessedMessage consumedMessage) {
-        return DocumentAccessHistory.builder()
-                .documentId(consumedMessage.getDocumentId())
-                .accessor(consumedMessage.getAccessor())
-                .accessDate(consumedMessage.getAccessDate())
-                .accessCount(consumedMessage.getAccessCount())
-                .build();
-    }
-
     @RabbitListener(queues = QueueName.REST_DOCUMENT_SCANNED)
     public void consumeDocumentScanned(final DocumentScannedMessage consumedMessage) {
         DocumentStatusHistory statusHistory = new DocumentStatusHistory(DocumentStatus.SCANNED);
@@ -49,6 +40,15 @@ public class MessageConsumer {
 
         DocumentStatusHistory statusHistory = new DocumentStatusHistory(DocumentStatus.SUMMARIZED);
         updateDocumentStatus(consumedMessage.documentId(), statusHistory);
+    }
+
+    private static DocumentAccessHistory buildDocumentAccessHistory(DocumentAccessedMessage consumedMessage) {
+        return DocumentAccessHistory.builder()
+                .documentId(consumedMessage.getDocumentId())
+                .accessor(consumedMessage.getAccessor())
+                .accessDate(consumedMessage.getAccessDate())
+                .accessCount(consumedMessage.getAccessCount())
+                .build();
     }
 
     @RabbitListener(queues = QueueName.REST_DOCUMENT_ACCESSED)
@@ -70,4 +70,5 @@ public class MessageConsumer {
             log.error("Could not update status for document with id {}: {}", documentId, e.getMessage());
         }
     }
+
 }
