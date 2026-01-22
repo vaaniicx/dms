@@ -11,10 +11,20 @@ API_BASE="$BASE_URL/api/v1"
 TEST_PDF_FILE="docs/rating-matrix.pdf"
 UPLOADED_DOC_ID=""
 COMPOSE_PROJECT="dms-integration-test"
+DOCKER_COMPOSE=()
+
+if command -v docker-compose >/dev/null 2>&1; then
+    DOCKER_COMPOSE=(docker-compose)
+elif command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+    DOCKER_COMPOSE=(docker compose)
+else
+    print_error "Docker Compose is not installed"
+    exit 1
+fi
 
 cleanup() {
     print_status "Cleaning up..."
-    docker-compose -p "$COMPOSE_PROJECT" down --remove-orphans >/dev/null 2>&1 || true
+    "${DOCKER_COMPOSE[@]}" -p "$COMPOSE_PROJECT" down --remove-orphans >/dev/null 2>&1 || true
     print_success "Cleanup completed"
 }
 trap cleanup EXIT
@@ -37,7 +47,7 @@ if [ ! -f ".env" ]; then
 fi
 
 print_status "Starting Docker stack..."
-docker-compose -p "$COMPOSE_PROJECT" up -d
+"${DOCKER_COMPOSE[@]}" -p "$COMPOSE_PROJECT" up -d
 
 print_status "Waiting for Ollama API and llama3 model to be ready..."
 start_time=$(date +%s)
@@ -338,7 +348,9 @@ if [ $tests_passed -eq $tests_total ]; then
     exit 0
 else
     print_error "Only $tests_passed out of $tests_total tests passed"
-    print_warning "Press Enter to continue with cleanup..."
-    read -r
+    if [ -t 0 ]; then
+        print_warning "Press Enter to continue with cleanup..."
+        read -r
+    fi
     exit 1
 fi

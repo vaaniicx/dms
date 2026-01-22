@@ -3,11 +3,14 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  unit-tests:
     runs-on: ubuntu-22.04
-    timeout-minutes: 5
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v4
@@ -17,7 +20,21 @@ jobs:
           java-version: '22'
           distribution: 'temurin'
           cache: maven
-          cache-dependency-path: rest/pom.xml
+          cache-dependency-path: |
+            pom.xml
+            dms-*/pom.xml
 
-      - name: Build (compile + test + package)
-        run: mvn -B package --file rest/pom.xml
+      - name: Run unit tests
+        run: mvn -B -pl dms-rest -am test
+
+  integration-tests:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 40
+    needs: unit-tests
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up .env for integration tests
+        run: cp .env.example .env
+      - name: Run integration tests
+        run: ./integration.sh
