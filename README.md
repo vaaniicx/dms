@@ -5,7 +5,9 @@ Group A
 ## Quick Start
 
 ```sh
-./run.sh args... #  or  .\run.ps1 args...
+cp .env.example .env
+# configure .env
+docker compose up -d --build
 ```
 
 ### Arguments
@@ -19,21 +21,23 @@ stop   # compose down all running containers
 dev    # build & compose up all non-local images (PG, NGINX, ...)
 ```
 
-2.Access
+2. Access (web UIs)
 
-- [Web UI](http://localhost:80)
-- [MinIO](http://localhost:9001)
-- [RabbbitMQ](http://localhost:15672)
-- [Adminer](http://localhost:9090)
-- [Elasticsearch](http://localhost:9200)
-- [Kibana](http://localhost:5601)
+- [Web UI](http://localhost:80) `n/a`
+- [MinIO](http://localhost:9001) `minioadmin:minioadmin`
+- [RabbbitMQ](http://localhost:15672) `guest:guest`
+- [Adminer](http://localhost:9090) `postgres:postgres`
+- [Kibana](http://localhost:5601) `n/a`
 
 ## Project Structure
 
 - `dms`
+  - `dms-batch-processor` Batch Processor worker
+  - `dms-commons` Shared messages/utilities
+  - `dms-gen-ai` Gen-AI service
+  - `dms-ocr` OCR worker
+  - `dms-rest` Spring REST API
   - `docs` Requirements & Documentation
-  - `rest` Spring REST API
-  - `ocr` Spring OCR Scanner
   - `ui` React Web UI
 
 ## Project Architecture
