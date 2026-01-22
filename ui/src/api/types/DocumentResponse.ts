@@ -6,22 +6,32 @@ export type DocumentStatus =
     | "INDEXED"
     | "FAILED";
 
+export interface StatusEntry {
+    status: DocumentStatus;
+    changeDate: string;
+}
+
+export interface FileInfo {
+    objectKey: string;
+    name: string;
+    type: string;
+    size: number;
+    pageCount: number;
+    creationDate: string;
+    modificationDate: string;
+}
+
+export interface AccessHistoryEntry {
+    accessDate: string;
+    user?: string;
+}
+
 export interface DocumentResponse {
     id: number;
-    fileName: string;
-    fileSize: number;
-    fileSizeUnit: string;
-    fileType: string;
-    fileExtension: string;
-    docPageCount: number;
-    docTitle: string;
-    docAuthor: string;
-    uploaded: boolean;
-    scanned: boolean;
-    summarized: boolean;
-    indexed: boolean;
-    docCreatedAt: string;
-    summary?: string | null;
-    insertedAt: string;
-    updatedAt: string;
+    title: string;
+    author: string;
+    summary: string | null;
+    file: FileInfo;
+    status: StatusEntry[];
+    accessHistory: AccessHistoryEntry[];
 }

@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT_DIR"
+
 print_status() { echo -e "$1"; }
 print_success() { echo -e "\033[0;32m$1\033[0m"; }
 print_warning() { echo -e "\033[1;33m$1\033[0m"; }
@@ -14,6 +17,9 @@ COMPOSE_PROJECT="dms-integration-test"
 
 cleanup() {
     print_status "Cleaning up..."
+    # Remove containers by their hardcoded names since docker-compose.yml uses container_name
+    docker rm -f ui rest ocr batch-processor gen-ai dbm kibana elasticsearch ollama minio db rmq 2>/dev/null || true
+    # Clean up networks and volumes
     docker-compose -p "$COMPOSE_PROJECT" down --remove-orphans >/dev/null 2>&1 || true
     print_success "Cleanup completed"
 }
@@ -36,6 +42,9 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
+# Clean up any existing containers before starting
+docker rm -f ui rest ocr batch-processor gen-ai dbm kibana elasticsearch ollama minio db rmq 2>/dev/null || true
+
 print_status "Starting Docker stack..."
 docker-compose -p "$COMPOSE_PROJECT" up -d
 
@@ -47,16 +56,16 @@ ollama_url="http://localhost:11434"
 while true; do
     current_time=$(date +%s)
     elapsed=$((current_time - start_time))
-    
+
     if [ $elapsed -gt $max_wait ]; then
         print_warning "Ollama timeout reached, continuing with tests..."
         break
     fi
-    
+
     # Ollama API is responding?
     if curl -s --max-time 5 "$ollama_url/api/version" >/dev/null 2>&1; then
         print_status "Ollama API is responding, checking for llama3 model..."
-        
+
         # llama3 model available?
         if models_response=$(curl -s --max-time 10 "$ollama_url/api/tags" 2>/dev/null); then
             if echo "$models_response" | grep -q "llama3"; then
@@ -71,7 +80,7 @@ while true; do
     else
         print_status "Waiting for Ollama API to start..."
     fi
-    
+
     printf "."
     sleep 10
 done
@@ -87,7 +96,7 @@ while [ $attempt -lt $max_attempts ]; do
         print_success "DMS REST API is ready"
         break
     fi
-    
+
     attempt=$((attempt + 1))
     printf "."
     sleep 5
@@ -105,11 +114,11 @@ print_success "Using: $TEST_PDF_FILE"
 
 test_api_health() {
     print_status "GET /api/v1/status"
-    
+
     response=$(curl -s -w "%{http_code}" "$API_BASE/status")
     http_code="${response: -3}"
     body="${response%???}"
-    
+
     if [ "$http_code" = "200" ]; then
         print_success "API health check passed"
         echo "   Response: $body"
@@ -121,13 +130,13 @@ test_api_health() {
 
 test_document_upload() {
     print_status "POST /api/v1/documents"
-    
+
     full_response=$(curl -s -i -X POST -F "file=@$TEST_PDF_FILE" "$API_BASE/documents")
     http_code=$(echo "$full_response" | grep "HTTP/" | tail -1 | awk '{print $2}')
-    
+
     if [ "$http_code" = "201" ]; then
         location_header=$(echo "$full_response" | grep -i "location:" | cut -d' ' -f2 | tr -d '\r\n' || true)
-        
+
         if [ -n "$location_header" ]; then
             UPLOADED_DOC_ID=$(echo "$location_header" | sed 's/.*\///')
             print_success "Document uploaded successfully with ID: $UPLOADED_DOC_ID"
@@ -153,20 +162,20 @@ wait_for_document_processing() {
     if [ -z "$UPLOADED_DOC_ID" ]; then
         return 1
     fi
-    
+
     print_status "Waiting for document processing (OCR → Summarization → Indexing)..."
     local max_wait=300  # 5 minutes
     local start_time=$(date +%s)
-    
+
     while true; do
         local current_time=$(date +%s)
         local elapsed=$((current_time - start_time))
-        
+
         if [ $elapsed -gt $max_wait ]; then
             print_warning "Document processing timeout after ${max_wait}s - proceeding with tests"
             break
         fi
-        
+
         # Check if document exists and get its status
         local doc_response=$(curl -s "$API_BASE/documents/$UPLOADED_DOC_ID" 2>/dev/null || echo "")
         if echo "$doc_response" | jq -e '.id? != null' >/dev/null; then
@@ -177,30 +186,30 @@ wait_for_document_processing() {
                 return 0
             fi
         fi
-        
+
         printf "."
         sleep 10
     done
-    
+
     echo
     return 0
 }
 
 test_document_retrieval() {
     print_status "GET /api/v1/documents/$UPLOADED_DOC_ID"
-    
+
     if [ -z "$UPLOADED_DOC_ID" ]; then
         print_error "No document ID available for retrieval test"
         return 1
     fi
-    
+
     response=$(curl -s -w "%{http_code}" "$API_BASE/documents/$UPLOADED_DOC_ID")
     http_code="${response: -3}"
     body="${response%???}"
-    
+
     if [ "$http_code" = "200" ]; then
         print_success "Document retrieval successful"
-        
+
         document_id=$(echo "$body" | jq -r '.id // empty')
         file_name=$(echo "$body" | jq -r '.file.name // empty')
         echo "   Document ID: $document_id"
@@ -213,18 +222,18 @@ test_document_retrieval() {
 
 test_document_download() {
     print_status "GET /api/v1/documents/$UPLOADED_DOC_ID/download"
-    
+
     if [ -z "$UPLOADED_DOC_ID" ]; then
         print_error "No document ID available for download test"
         return 1
     fi
-    
+
     response=$(curl -s -w "%{http_code}" \
         -o "downloaded_test.pdf" \
         "$API_BASE/documents/$UPLOADED_DOC_ID/download")
-    
+
     http_code="${response: -3}"
-    
+
     if [ "$http_code" = "200" ] && [ -f "downloaded_test.pdf" ] && [ -s "downloaded_test.pdf" ]; then
         file_size=$(wc -c < "downloaded_test.pdf")
         print_success "Document download successful ($file_size bytes)"
@@ -237,16 +246,16 @@ test_document_download() {
 
 test_document_search() {
     print_status "GET /api/v1/documents/search?query=test&scope=name"
-    
+
     response=$(curl -s -w "%{http_code}" \
         "$API_BASE/documents/search?query=test&scope=name")
-    
+
     http_code="${response: -3}"
     body="${response%???}"
-    
+
     if [ "$http_code" = "200" ]; then
         print_success "Document search successful"
-        
+
         count=$(echo "$body" | jq '. | length')
         echo "   Found $count documents"
     else
@@ -257,14 +266,14 @@ test_document_search() {
 
 test_get_all_documents() {
     print_status "GET /api/v1/documents"
-    
+
     response=$(curl -s -w "%{http_code}" "$API_BASE/documents")
     http_code="${response: -3}"
     body="${response%???}"
-    
+
     if [ "$http_code" = "200" ]; then
         print_success "Get all documents successful"
-        
+
         count=$(echo "$body" | jq '. | length')
         echo "   Total documents: $count"
     else
@@ -275,24 +284,24 @@ test_get_all_documents() {
 
 test_document_deletion() {
     print_status "DELETE /api/v1/documents/$UPLOADED_DOC_ID"
-    
+
     if [ -z "$UPLOADED_DOC_ID" ]; then
         print_error "No document ID available for deletion test"
         return 1
     fi
-    
+
     # Delete document
     response=$(curl -s -w "%{http_code}" \
         -X DELETE \
         "$API_BASE/documents/$UPLOADED_DOC_ID")
-    
+
     http_code="${response: -3}"
-    
+
     if [ "$http_code" = "204" ]; then
         # Verify deletion by trying to retrieve
         verify_response=$(curl -s -w "%{http_code}" "$API_BASE/documents/$UPLOADED_DOC_ID")
         verify_code="${verify_response: -3}"
-        
+
         if [ "$verify_code" = "404" ]; then
             print_success "Document deletion successful and verified"
         else

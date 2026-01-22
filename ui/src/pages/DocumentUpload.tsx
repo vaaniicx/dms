@@ -34,7 +34,12 @@ const sleep = (ms: number) =>
     });
 
 const hasCompletedProcessing = (document: DocumentResponse): boolean =>
-    Boolean(document.indexed || document.summarized || document.scanned);
+    document.status.some(
+        (s) =>
+            s.status === "INDEXED" ||
+            s.status === "SCANNED" ||
+            s.status === "SUMMARIZED",
+    );
 
 const deriveUploadStatus = (document: DocumentResponse): DocumentStatus => {
     return hasCompletedProcessing(document) ? "SCANNED" : "UPLOADED";

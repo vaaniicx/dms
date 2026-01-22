@@ -67,7 +67,9 @@ function DocumentSearch() {
 
         try {
             await deleteDocument(selectedDocument);
-            setDocuments((prev) => prev.filter((doc) => doc.id !== selectedDocument));
+            setDocuments((prev) =>
+                prev.filter((doc) => doc.id !== selectedDocument),
+            );
         } catch (err) {
             console.error(err);
         } finally {
@@ -102,22 +104,21 @@ function DocumentSearch() {
     function mapDocuments(docs: DocumentResponse[]): DataType[] {
         return docs.map((doc) => ({
             key: doc.id,
-            name: doc.docTitle || doc.fileName || "-",
-            type: doc.fileExtension || "-",
-            author: doc.docAuthor || "",
-            uploadedAt: doc.insertedAt
-                ? new Date(doc.insertedAt).toLocaleString()
+            name: doc.title || doc.file.name || "-",
+            type: doc.file.type || "-",
+            author: doc.author || "",
+            uploadedAt: doc.file.creationDate
+                ? new Date(doc.file.creationDate).toLocaleString()
                 : "-",
-            sizeRaw: doc.fileSize ?? 0,
-            size:
-                doc.fileSize && doc.fileSizeUnit
-                    ? `${doc.fileSize} ${doc.fileSizeUnit}`
-                    : "-",
-            pageCount: doc.docPageCount ?? 0,
-            uploaded: Boolean(doc.uploaded),
-            scanned: Boolean(doc.scanned),
-            summarized: Boolean(doc.summarized),
-            indexed: Boolean(doc.indexed),
+            sizeRaw: doc.file.size ?? 0,
+            size: doc.file.size
+                ? `${(doc.file.size / 1024).toFixed(2)} KB`
+                : "-",
+            pageCount: doc.file.pageCount ?? 0,
+            uploaded: doc.status.some((s) => s.status === "UPLOADED"),
+            scanned: doc.status.some((s) => s.status === "SCANNED"),
+            summarized: doc.status.some((s) => s.status === "SUMMARIZED"),
+            indexed: doc.status.some((s) => s.status === "INDEXED"),
             summary: doc.summary ?? "",
         }));
     }
