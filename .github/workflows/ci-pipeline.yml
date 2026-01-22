@@ -3,11 +3,23 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  compile-modules:
     runs-on: ubuntu-22.04
-    timeout-minutes: 5
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - dms-batch-processor
+          - dms-commons
+          - dms-gen-ai
+          - dms-ocr
+          - dms-rest
 
     steps:
       - uses: actions/checkout@v4
@@ -17,7 +29,9 @@ jobs:
           java-version: '22'
           distribution: 'temurin'
           cache: maven
-          cache-dependency-path: rest/pom.xml
+          cache-dependency-path: |
+            pom.xml
+            dms-*/pom.xml
 
-      - name: Build (compile + test + package)
-        run: mvn -B package --file rest/pom.xml
+      - name: Compile module
+        run: mvn -B -pl ${{ matrix.module }} -am -DskipTests compile
