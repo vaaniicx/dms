@@ -35,3 +35,24 @@ jobs:
 
       - name: Compile module
         run: mvn -B -pl ${{ matrix.module }} -am -DskipTests compile
+
+  compile-frontend:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ui
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ui
+        run: npm run build
